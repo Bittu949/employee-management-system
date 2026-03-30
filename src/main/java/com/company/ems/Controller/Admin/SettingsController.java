@@ -1,31 +1,3 @@
-//package com.company.ems.Controller;
-//
-//import com.company.ems.Service.Admin.SettingsService;
-//import lombok.AllArgsConstructor;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.web.bind.annotation.*;
-//
-//@Controller
-//@AllArgsConstructor
-//@RequestMapping("/admin/settings")
-//public class SettingsController {
-//    SettingsService settingsService;
-//    @GetMapping("/page")
-//    public String settingsPage(Model model){
-//        model.addAttribute("user",settingsService.getUser());
-//        return "Admin_dashboard/Settings/settings";
-//    }
-//    @PostMapping("/changePassword")
-//    public String changePassword(@RequestParam String currentPassword,
-//                                 @RequestParam String newPassword,
-//                                 @RequestParam String confirmPassword){
-//        settingsService.changePassword(currentPassword, newPassword, confirmPassword);
-//        return "redirect:/dashboard";
-//    }
-//}
-
-
 package com.company.ems.Controller.Admin;
 
 import com.company.ems.Exception.InvalidPasswordException;
@@ -61,7 +33,6 @@ public class SettingsController {
                                  @RequestParam String newPassword,
                                  @RequestParam String confirmPassword) {
 
-        // Basic validation (optional but clean)
         if (newPassword == null || newPassword.isEmpty()) {
             throw new InvalidPasswordException("New password cannot be empty");
         }

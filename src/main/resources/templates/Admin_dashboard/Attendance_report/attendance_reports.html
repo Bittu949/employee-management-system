@@ -115,17 +115,26 @@
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Present</div>
+                <div class="label text-sm text-gray-500">
+                    Present
+                    <div class="text-xs text-gray-400">(Today)</div>
+                </div>
                 <div class="value text-xl font-bold mt-2" th:text="${presentCount}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Absent</div>
+                <div class="label text-sm text-gray-500">
+                    Absent
+                    <div class="text-xs text-gray-400">(Today)</div>
+                </div>
                 <div class="value text-xl font-bold mt-2" th:text="${absentCount}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Attendance %</div>
+                <div class="label text-sm text-gray-500">
+                    Attendance %
+                    <div class="text-xs text-gray-400">(Today)</div>
+                </div>
                 <div class="value text-xl font-bold mt-2" th:text="${attendancePercentage + ' %'}"></div>
             </div>
 

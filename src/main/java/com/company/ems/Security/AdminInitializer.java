@@ -7,7 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-//@Component
+@Component
 public class AdminInitializer implements CommandLineRunner {
     @Autowired
     UserRepository userRepository;

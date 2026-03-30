@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/employee/employee_dashboard}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Dashboard
+            </a>
+
+            <a th:href="@{/employee/profile}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Profile
+            </a>
+
+            <a th:href="@{/employee/attendance}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Attendance
+            </a>
+
+            <a th:href="@{/employee/settings}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Settings
+            </a>
+
+            <a th:href="@{/employee/tasks}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                My Tasks <span th:text="${pendingTasks}">0</span>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">
+                    Attendance
+                </div>
+                <div class="sub-welcome text-gray-500 text-sm">
+                    Track your daily attendance
+                </div>
+            </div>
+
+            <a href="#" onclick="confirmLogout(event)"
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+                Logout
+            </a>
+        </div>
+
+        <div class="attendance-card bg-white rounded-2xl shadow p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+
+            <div class="p-4 rounded-xl bg-gray-50">
+                <div class="text-sm text-gray-500">Check-In</div>
+                <div class="mt-2 font-semibold"
+                     th:if="${todayAttendance != null and todayAttendance.checkInTime != null}"
+                     th:text="${todayAttendance.checkInTime}"></div>
+                <div class="mt-2 font-semibold"
+                     th:if="${todayAttendance == null or todayAttendance.checkInTime == null}">
+                    --:--
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-gray-50">
+                <div class="text-sm text-gray-500">Check-Out</div>
+                <div class="mt-2 font-semibold"
+                     th:if="${todayAttendance != null and todayAttendance.checkOutTime != null}"
+                     th:text="${todayAttendance.checkOutTime}"></div>
+                <div class="mt-2 font-semibold"
+                     th:if="${todayAttendance == null or todayAttendance.checkOutTime == null}">
+                    --:--
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-gray-50">
+                <div class="text-sm text-gray-500">Working Hours</div>
+                <div class="mt-2 font-semibold"
+                     th:if="${todayAttendance != null and todayAttendance.workingHours != null}"
+                     th:text="${todayAttendance.workingHours}"></div>
+                <div class="mt-2 font-semibold"
+                     th:if="${todayAttendance == null or todayAttendance.workingHours == null}">
+                    0h 0m
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-gray-50">
+                <div class="text-sm text-gray-500">Status</div>
+                <div class="mt-2 font-semibold text-green-600"
+                     th:if="${todayAttendance != null}"
+                     th:text="${todayAttendance.status}"></div>
+                <div class="mt-2 font-semibold text-red-500"
+                     th:if="${todayAttendance == null}">
+                    Not Marked
+                </div>
+            </div>
+
+            <div class="col-span-full flex flex-col sm:flex-row gap-3 mt-2">
+
+                <button class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                        th:if="${todayAttendance == null}"
+                        onclick="checkIn()">
+                    Check-In
+                </button>
+
+                <button class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                        th:if="${todayAttendance != null and todayAttendance.checkOutTime == null}"
+                        onclick="checkOut()">
+                    Check-Out
+                </button>
+
+                <button class="px-4 py-2 rounded-lg bg-gray-300 text-gray-600 cursor-not-allowed"
+                        th:if="${todayAttendance != null and todayAttendance.checkOutTime != null}"
+                        disabled>
+                    Completed
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="mt-6 bg-white rounded-2xl shadow p-5">
+
+            <div class="flex flex-col md:flex-row gap-4">
+
+                <select id="statusFilter"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="">All Status</option>
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                </select>
+
+                <select id="monthFilter"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="">Month</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+
+                <select id="yearFilter"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="">Year</option>
+                    <option value="2026">2026</option>
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="attendance-history mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+
+            <div class="section-title font-semibold text-lg mb-3">
+                Attendance History
+            </div>
+
+            <div class="history-header hidden md:grid grid-cols-5 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+                <div>Date</div>
+                <div>Check-In</div>
+                <div>Check-Out</div>
+                <div>Hours</div>
+                <div>Status</div>
+            </div>
+
+            <div id="historyContainer">
+
+                <div class="history-row py-3 text-sm text-gray-500"
+                     th:if="${attendanceHistory == null or attendanceHistory.isEmpty()}">
+                    No records available
+                </div>
+
+                <div th:each="att : ${attendanceHistory}"
+                     class="history-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm">
+
+                    <div th:text="${att.date}">Date</div>
+
+                    <div th:if="${att.checkInTime != null}"
+                         th:text="${att.checkInTime}"></div>
+                    <div th:if="${att.checkInTime == null}">--:--</div>
+
+                    <div th:if="${att.checkOutTime != null}"
+                         th:text="${att.checkOutTime}"></div>
+                    <div th:if="${att.checkOutTime == null}">--:--</div>
+
+                    <div th:if="${att.workingHours != null}"
+                         th:text="${att.workingHours}"></div>
+                    <div th:if="${att.workingHours == null}">--</div>
+
+                    <div th:text="${att.status}"
+                         th:classappend="${att.status == 'Present'} ? 'text-green-600' : 'text-red-500'">
+                        Status
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    function showToast(message, success = true) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: success ? "#22c55e" : "#ef4444",
+            close: true,
+            stopOnFocus: true
+        }).showToast();
+    }
+
+    function confirmLogout(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: "Logout?",
+            text: "You will be signed out of your account.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#4f46e5",
+            cancelButtonColor: "#ef4444",
+            confirmButtonText: "Yes, logout",
+            cancelButtonText: "Stay here",
+            reverseButtons: true
+        })
+        .then(result => {
+            if (result.isConfirmed) {
+                setTimeout(() => {
+                    window.location.href = "/employee/logout";
+                }, 300);
+            } else {
+                showToast("Logout cancelled", false);
+            }
+        });
+    }
+
+    function checkIn() {
+
+        Swal.fire({
+            title: "Check-In?",
+            text: "Do you want to mark your attendance?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#22c55e",
+            cancelButtonColor: "#ef4444",
+            confirmButtonText: "Yes, check-in"
+        })
+
+        .then(result => {
+
+            if (result.isConfirmed) {
+
+                fetch('/employee/attendance/check-in', { method: 'POST' })
+                .then(response => {
+
+                    if(response.ok){
+                        showToast("Checked in successfully", true);
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast("Check-in failed", false);
+                    }
+
+                })
+                .catch(() => showToast("Something went wrong", false));
+
+            } else {
+                showToast("Check-in cancelled", false);
+            }
+
+        });
+    }
+
+    function checkOut() {
+
+        Swal.fire({
+            title: "Check-Out?",
+            text: "Do you want to mark check-out?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, check-out"
+        })
+
+        .then(result => {
+
+            if (result.isConfirmed) {
+
+                fetch('/employee/attendance/check-out', { method: 'POST' })
+                .then(response => {
+
+                    if(response.ok){
+                        showToast("Checked out successfully", true);
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast("Check-out failed", false);
+                    }
+
+                })
+                .catch(() => showToast("Something went wrong", false));
+
+            } else {
+                showToast("Check-out cancelled", false);
+            }
+
+        });
+    }
+
+    document.getElementById("statusFilter").addEventListener("change", fetchAttendance);
+    document.getElementById("monthFilter").addEventListener("change", fetchAttendance);
+    document.getElementById("yearFilter").addEventListener("change", fetchAttendance);
+
+    function fetchAttendance(){
+
+        const status = document.getElementById("statusFilter").value;
+        const month = document.getElementById("monthFilter").value;
+        const year = document.getElementById("yearFilter").value;
+
+        fetch(`/employee/attendance/filter?status=${status}&month=${month}&year=${year}`)
+            .then(res => res.json())
+            .then(data => renderAttendance(data))
+            .catch(() => showToast("Error loading attendance", false));
+    }
+
+    function renderAttendance(data){
+
+        const container = document.getElementById("historyContainer");
+
+        let html = "";
+
+        if(!data || data.length === 0){
+            html = `<div class="py-3 text-sm text-gray-500">No records available</div>`;
+        } else {
+
+            data.forEach(att => {
+
+                const checkIn = att.checkInTime ? att.checkInTime : "--:--";
+                const checkOut = att.checkOutTime ? att.checkOutTime : "--:--";
+                const hours = att.workingHours ? att.workingHours : "--";
+                const statusClass = att.status === "Present" ? "text-green-600" : "text-red-500";
+
+                html += `
+                    <div class="grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm">
+                        <div>${att.date}</div>
+                        <div>${checkIn}</div>
+                        <div>${checkOut}</div>
+                        <div>${hours}</div>
+                        <div class="${statusClass}">${att.status}</div>
+                    </div>
+                `;
+            });
+        }
+        container.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>

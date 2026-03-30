@@ -1,0 +1,631 @@
+//package com.company.ems.Service;
+//import com.company.ems.Dto.Performance;
+//import com.company.ems.Entity.Attendance;
+//import com.company.ems.Entity.Task;
+//import com.company.ems.Entity.User;
+//import com.company.ems.Repository.AttendanceRepository;
+//import com.company.ems.Repository.TaskRepository;
+//import com.company.ems.Repository.UserRepository;
+//import jakarta.servlet.http.HttpServletResponse;
+//import lombok.AllArgsConstructor;
+//import org.springframework.data.domain.Page;
+//import org.springframework.data.domain.PageImpl;
+//import org.springframework.data.domain.PageRequest;
+//import org.springframework.stereotype.Service;
+//import java.util.ArrayList;
+//import java.util.List;
+//@Service
+//@AllArgsConstructor
+//public class PerformanceService {
+//    TaskRepository taskRepository;
+//    AttendanceRepository attendanceRepository;
+//    UserRepository userRepository;
+//    public Page<Performance> getPaginatedPerformance(int page, int size){
+//
+//        if(page < 0) page = 0;
+//
+//        List<Performance> performances = showAllPerformanceDetails();
+//
+//        int start = page * size;
+//        int end = Math.min(start + size, performances.size());
+//
+//        List<Performance> paginatedList;
+//
+//        if(start < performances.size()){
+//            paginatedList = performances.subList(start, end);
+//        } else {
+//            paginatedList = new ArrayList<>();
+//        }
+//
+//        return new PageImpl<>(paginatedList, PageRequest.of(page, size), performances.size());
+//    }
+//    public List<Performance> showAllPerformanceDetails(){
+//        List<User> users = userRepository.findAll();
+//        List<Performance> performances = new ArrayList<>();
+//        for(User user : users){
+//            Performance performance = new Performance();
+//
+//            performance.setEmployeeId(user.getId());
+//            performance.setEmployeeName(user.getFullName());
+//            performance.setStatus(user.getStatus());
+//
+//            long totalTasks = taskRepository.countByUserId(user.getId());
+//            long completedTasks = taskRepository.countByUserIdAndStatus(user.getId(), "COMPLETED");
+//            long pendingTasks = taskRepository.countByUserIdAndStatus(user.getId(), "PENDING");
+//
+//            performance.setTasksAssigned(totalTasks);
+//            performance.setPending(pendingTasks);
+//
+//            if(totalTasks == 0){
+//                performance.setCompletionPercentage(0);
+//            }else{
+//                performance.setCompletionPercentage((completedTasks * 100.0) / totalTasks);
+//            }
+//
+//            long totalAttendance = attendanceRepository.countByUserId(user.getId());
+//            long presentDays = attendanceRepository.countByUserIdAndStatus(user.getId(), "PRESENT");
+//
+//            if(totalAttendance == 0){
+//                performance.setAttendancePercentage(0);
+//            }else{
+//                performance.setAttendancePercentage((presentDays * 100.0) / totalAttendance);
+//            }
+//            performances.add(performance);
+//        }
+//        return performances;
+//    }
+//    public Page<Performance> filterPerformanceWithPagination(String search,
+//                                                              Long month,
+//                                                              Long year,
+//                                                              int page,
+//                                                              int size){
+//        if(page < 0) page = 0;
+//
+//        List<Performance> performances = filterPerformance(search, month, year);
+//
+//        int start = page * size;
+//        int end = Math.min(start + size, performances.size());
+//
+//        List<Performance> paginatedList;
+//
+//        if(start < performances.size()){
+//            paginatedList = performances.subList(start, end);
+//        } else {
+//            paginatedList = new ArrayList<>();
+//        }
+//
+//        return new PageImpl<>(paginatedList, PageRequest.of(page, size), performances.size());
+//    }
+//    public List<Performance> filterPerformance(String search, Long month, Long year){
+//        List<Performance> performances = showAllPerformanceDetails();
+//
+//        if(search!=null && !search.trim().isEmpty())
+//            performances = performances.stream().filter(p-> p.getEmployeeName() != null &&
+//                    p.getEmployeeName().toLowerCase().contains(search.toLowerCase())).toList();
+//        if(month == null && year == null)
+//            return performances;
+//
+//        if(month != null && (month < 1 || month > 12)){
+//            throw new IllegalArgumentException("Invalid month");
+//        }
+//
+//        if(month != null && year == null){
+//            performances.forEach(p -> {
+//                long totalTasks = countByUserIdAndMonth(p.getEmployeeId(), month);
+//                long pendingTasks = countByUserIdMonthAndStatus(p.getEmployeeId(), month, "PENDING");
+//                long completedTasks = countByUserIdMonthAndStatus(p.getEmployeeId(), month, "COMPLETED");
+//
+//                p.setTasksAssigned(totalTasks);
+//                p.setPending(pendingTasks);
+//
+//                if(totalTasks == 0){
+//                    p.setCompletionPercentage(0);
+//                } else {
+//                    p.setCompletionPercentage((completedTasks * 100.0) / totalTasks);
+//                }
+//
+//                long totalAttendance = countAttendanceByUserIdAndMonth(p.getEmployeeId(), month);
+//                long presentDays = countAttendanceByUserIdMonthAndStatus(p.getEmployeeId(), month, "PRESENT");
+//
+//                if(totalAttendance == 0){
+//                    p.setAttendancePercentage(0);
+//                } else {
+//                    p.setAttendancePercentage((presentDays * 100.0) / totalAttendance);
+//                }
+//
+//            });
+//        }
+//        else if(year != null && month==null){
+//            performances.forEach(p -> {
+//                long totalTasks = countByUserIdAndYear(p.getEmployeeId(), year);
+//                long pendingTasks = countByUserIdYearAndStatus(p.getEmployeeId(), year, "PENDING");
+//                long completedTasks = countByUserIdYearAndStatus(p.getEmployeeId(), year, "COMPLETED");
+//
+//                p.setTasksAssigned(totalTasks);
+//                p.setPending(pendingTasks);
+//
+//                if(totalTasks == 0){
+//                    p.setCompletionPercentage(0);
+//                } else {
+//                    p.setCompletionPercentage((completedTasks * 100.0) / totalTasks);
+//                }
+//
+//                long totalAttendance = countAttendanceByUserIdAndYear(p.getEmployeeId(), year);
+//                long presentDays = countAttendanceByUserIdYearAndStatus(p.getEmployeeId(), year, "PRESENT");
+//
+//                if(totalAttendance == 0){
+//                    p.setAttendancePercentage(0);
+//                } else {
+//                    p.setAttendancePercentage((presentDays * 100.0) / totalAttendance);
+//                }
+//            });
+//        }
+//        else if (month != null && year != null){
+//            performances.forEach(p -> {
+//                long totalTasks = countTasksByUserIdMonthAndYear(p.getEmployeeId(), month, year);
+//                long pendingTasks = countTasksByUserIdMonthYearAndStatus(p.getEmployeeId(),month, year, "PENDING");
+//                long completedTasks = countTasksByUserIdMonthYearAndStatus(p.getEmployeeId(),month, year, "COMPLETED");
+//
+//                p.setTasksAssigned(totalTasks);
+//                p.setPending(pendingTasks);
+//
+//                if(totalTasks == 0){
+//                    p.setCompletionPercentage(0);
+//                } else {
+//                    p.setCompletionPercentage((completedTasks * 100.0) / totalTasks);
+//                }
+//
+//                long totalAttendance = countAttendanceByUserIdMonthAndYear(p.getEmployeeId(),month, year);
+//                long presentDays = countAttendanceByUserIdMonthYearAndStatus(p.getEmployeeId(),month, year, "PRESENT");
+//
+//                if(totalAttendance == 0){
+//                    p.setAttendancePercentage(0);
+//                } else {
+//                    p.setAttendancePercentage((presentDays * 100.0) / totalAttendance);
+//                }
+//            });
+//        }
+//        return performances;
+//    }
+//    public long totalEmployeesCount(){
+//        return userRepository.count();
+//    }
+//    public double averageCompletionRate(){
+//        long totalTasks = taskRepository.count();
+//        long completedTasks = taskRepository.countByStatus("COMPLETED");
+//
+//        if(totalTasks == 0){
+//            return 0;
+//        }
+//        return (completedTasks * 100.0) / totalTasks;
+//    }
+//    public long totalCompletedTasks(){
+//        return taskRepository.countByStatus("COMPLETED");
+//    }
+//    public long totalPendingTasks(){
+//        return taskRepository.countByStatus("PENDING");
+//    }
+//    public long countByUserIdAndMonth(long userId, long month){
+//        List<Task> tasks = taskRepository.findAllByUser_Id(userId);
+//        return tasks.stream().filter(t -> t.getAssignedAt() != null &&
+//                t.getAssignedAt().getMonthValue() == month).count();
+//    }
+//    public long countByUserIdAndYear(long userId, long year){
+//        List<Task> tasks = taskRepository.findAllByUser_Id(userId);
+//        return tasks.stream().filter(t -> t.getAssignedAt() != null &&
+//                t.getAssignedAt().getYear() == year).count();
+//    }
+//    public long countByUserIdMonthAndStatus(long userId, long month, String status){
+//        List<Task> tasks = taskRepository.findAllByUser_Id(userId);
+//        return tasks.stream().filter(t -> t.getAssignedAt()!=null &&
+//                t.getAssignedAt().getMonthValue()==month &&
+//                t.getStatus()!=null && t.getStatus().equalsIgnoreCase(status)).count();
+//    }
+//    public long countByUserIdYearAndStatus(long userId, long year, String status){
+//        List<Task> tasks = taskRepository.findAllByUser_Id(userId);
+//        return tasks.stream().filter(t -> t.getAssignedAt()!=null &&
+//                t.getAssignedAt().getYear()==year &&
+//                t.getStatus()!=null && t.getStatus().equalsIgnoreCase(status)).count();
+//    }
+//    public long countAttendanceByUserIdAndMonth(long userId, long month){
+//        List<Attendance> attendances = attendanceRepository.findAllByUser_Id(userId);
+//        return attendances.stream().filter(a -> a.getDate()!=null && a.getDate().getMonthValue()==month).count();
+//    }
+//    public long countAttendanceByUserIdAndYear(long userId, long year){
+//        List<Attendance> attendances = attendanceRepository.findAllByUser_Id(userId);
+//        return attendances.stream().filter(a -> a.getDate()!=null && a.getDate().getYear()==year).count();
+//    }
+//    public long countAttendanceByUserIdMonthAndStatus(long userId, long month, String status){
+//        List<Attendance> attendances = attendanceRepository.findAllByUser_Id(userId);
+//        return attendances.stream().filter(a -> a.getDate()!=null &&
+//                a.getDate().getMonthValue()==month &&
+//                a.getStatus()!=null &&
+//                a.getStatus().equalsIgnoreCase(status)).count();
+//    }
+//    public long countAttendanceByUserIdYearAndStatus(long userId, long year, String status){
+//        List<Attendance> attendances = attendanceRepository.findAllByUser_Id(userId);
+//        return attendances.stream().filter(a -> a.getDate()!=null &&
+//                a.getDate().getYear()==year &&
+//                a.getStatus()!=null &&
+//                a.getStatus().equalsIgnoreCase(status)).count();
+//    }
+//    public long countTasksByUserIdMonthAndYear(long userId, long month, long year){
+//        List<Task> tasks = taskRepository.findAllByUser_Id(userId);
+//        return tasks.stream().filter(t -> t.getAssignedAt()!=null &&
+//                t.getAssignedAt().getMonthValue()==month &&
+//                t.getAssignedAt().getYear()==year).count();
+//    }
+//    public long countAttendanceByUserIdMonthAndYear(long userId, long month, long year){
+//        List<Attendance> attendances = attendanceRepository.findAllByUser_Id(userId);
+//        return attendances.stream().filter(t -> t.getDate()!=null &&
+//                t.getDate().getMonthValue()==month &&
+//                t.getDate().getYear()==year).count();
+//    }
+//    public long countTasksByUserIdMonthYearAndStatus(long userId, long month, long year, String status){
+//        List<Task> tasks = taskRepository.findAllByUser_Id(userId);
+//        return tasks.stream().filter(t -> t.getAssignedAt()!=null &&
+//                t.getAssignedAt().getMonthValue()==month &&
+//                t.getAssignedAt().getYear()==year &&
+//                t.getStatus()!=null &&
+//                t.getStatus().equalsIgnoreCase(status)).count();
+//    }
+//    public long countAttendanceByUserIdMonthYearAndStatus(long userId, long month, long year, String status){
+//        List<Attendance> attendances = attendanceRepository.findAllByUser_Id(userId);
+//        return attendances.stream().filter(t -> t.getDate()!=null &&
+//                t.getDate().getMonthValue()==month &&
+//                t.getDate().getYear()==year &&
+//                t.getStatus()!=null &&
+//                t.getStatus().equalsIgnoreCase(status)).count();
+//    }
+//}
+
+
+
+
+package com.company.ems.Service.Admin;
+
+import com.company.ems.Dto.Performance;
+import com.company.ems.Entity.Attendance;
+import com.company.ems.Entity.Task;
+import com.company.ems.Entity.User;
+import com.company.ems.Exception.InvalidInputException;
+import com.company.ems.Repository.AttendanceRepository;
+import com.company.ems.Repository.TaskRepository;
+import com.company.ems.Repository.UserRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class PerformanceService {
+
+    TaskRepository taskRepository;
+    AttendanceRepository attendanceRepository;
+    UserRepository userRepository;
+    AttendanceService attendanceService;
+
+    public Page<Performance> getPaginatedPerformance(int page, int size){
+
+        if(page < 0) page = 0;
+
+        List<Performance> performances = showAllPerformanceDetails();
+
+        int start = page * size;
+        int end = Math.min(start + size, performances.size());
+
+        List<Performance> paginatedList;
+
+        if(start < performances.size()){
+            paginatedList = performances.subList(start, end);
+        } else {
+            paginatedList = new ArrayList<>();
+        }
+
+        return new PageImpl<>(paginatedList, PageRequest.of(page, size), performances.size());
+    }
+
+    public List<Performance> showAllPerformanceDetails(){
+
+        List<User> users = userRepository.findAllByRole("EMPLOYEE");
+        List<Attendance> fullAttendanceList = attendanceService.showAttendanceRecords();
+
+        if(users.isEmpty()){
+            return new ArrayList<>();
+        }
+
+        List<Performance> performances = new ArrayList<>();
+
+        for(User user : users){
+
+            Performance performance = new Performance();
+
+            performance.setEmployeeId(user.getId());
+            performance.setEmployeeName(user.getFullName());
+            performance.setStatus(user.getStatus());
+
+            long totalTasks = taskRepository.countByUserId(user.getId());
+            long completedTasks = taskRepository.countByUserIdAndStatus(user.getId(), "COMPLETED");
+            long pendingTasks = taskRepository.countByUserIdAndStatus(user.getId(), "PENDING");
+
+            performance.setTasksAssigned(totalTasks);
+            performance.setPending(pendingTasks);
+
+            if(totalTasks == 0){
+                performance.setCompletionPercentage(0);
+            }else{
+                performance.setCompletionPercentage(Math.round((completedTasks * 100.0) / totalTasks));
+            }
+
+            List<Attendance> userAttendance = fullAttendanceList.stream()
+                    .filter(a -> a.getUser().getId() == user.getId())
+                    .toList();
+
+            long totalAttendance = userAttendance.size();
+
+            long presentDays = userAttendance.stream()
+                    .filter(a -> "PRESENT".equalsIgnoreCase(a.getStatus()))
+                    .count();
+
+            if(totalAttendance == 0){
+                performance.setAttendancePercentage(0);
+            }else{
+                performance.setAttendancePercentage(Math.round((presentDays * 100.0) / totalAttendance));
+            }
+
+            performances.add(performance);
+        }
+
+        return performances;
+    }
+
+    public Page<Performance> filterPerformanceWithPagination(String search,
+                                                             Long month,
+                                                             Long year,
+                                                             int page,
+                                                             int size){
+
+        if(page < 0) page = 0;
+
+        List<Performance> performances = filterPerformance(search, month, year);
+
+        int start = page * size;
+        int end = Math.min(start + size, performances.size());
+
+        List<Performance> paginatedList;
+
+        if(start < performances.size()){
+            paginatedList = performances.subList(start, end);
+        } else {
+            paginatedList = new ArrayList<>();
+        }
+
+        return new PageImpl<>(paginatedList, PageRequest.of(page, size), performances.size());
+    }
+
+    public List<Performance> filterPerformance(String search, Long month, Long year){
+
+        List<Performance> performances = showAllPerformanceDetails();
+
+        if(search != null){
+            search = search.trim().toLowerCase();
+            if(!search.isEmpty()){
+                String finalSearch = search;
+                performances = performances.stream()
+                        .filter(p -> p.getEmployeeName() != null &&
+                                p.getEmployeeName().toLowerCase().contains(finalSearch))
+                        .toList();
+            }
+        }
+
+        if(month == null && year == null){
+            return performances;
+        }
+
+        List<Attendance> fullAttendanceList = attendanceService.showAttendanceRecords();
+
+        performances.forEach(p -> {
+
+            long userId = p.getEmployeeId();
+
+            // ================= ATTENDANCE =================
+            List<Attendance> userAttendance = fullAttendanceList.stream()
+                    .filter(a -> a.getUser().getId() == userId)
+                    .toList();
+
+            if(year != null){
+                userAttendance = userAttendance.stream()
+                        .filter(a -> a.getDate().getYear() == year)
+                        .toList();
+            }
+
+            if(month != null){
+                userAttendance = userAttendance.stream()
+                        .filter(a -> a.getDate().getMonthValue() == month)
+                        .toList();
+            }
+
+            long totalAttendance = userAttendance.size();
+
+            long presentDays = userAttendance.stream()
+                    .filter(a -> "PRESENT".equalsIgnoreCase(a.getStatus()))
+                    .count();
+
+            p.setAttendancePercentage(totalAttendance == 0 ? 0 :
+                    Math.round((presentDays * 100.0) / totalAttendance));
+
+            // ================= TASKS =================
+            List<Task> userTasks = taskRepository.findAllByUser_Id(userId);
+
+            if(year != null){
+                userTasks = userTasks.stream()
+                        .filter(t -> t.getAssignedAt() != null &&
+                                t.getAssignedAt().getYear() == year)
+                        .toList();
+            }
+
+            if(month != null){
+                userTasks = userTasks.stream()
+                        .filter(t -> t.getAssignedAt() != null &&
+                                t.getAssignedAt().getMonthValue() == month)
+                        .toList();
+            }
+
+            long totalTasks = userTasks.size();
+
+            long completedTasks = userTasks.stream()
+                    .filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus()))
+                    .count();
+
+            long pendingTasks = userTasks.stream()
+                    .filter(t -> "PENDING".equalsIgnoreCase(t.getStatus()))
+                    .count();
+
+            p.setTasksAssigned(totalTasks);
+            p.setPending(pendingTasks);
+
+            p.setCompletionPercentage(totalTasks == 0 ? 0 :
+                    Math.round((completedTasks * 100.0) / totalTasks));
+        });
+
+        return performances;
+    }
+
+    public long totalEmployeesCount(){
+        return userRepository.countByRole("EMPLOYEE");
+    }
+
+    public double averageCompletionRate(){
+
+        long totalTasks = taskRepository.count();
+
+        if(totalTasks == 0){
+            return 0;
+        }
+
+        long completedTasks = taskRepository.countByStatus("COMPLETED");
+
+        return Math.round((completedTasks * 100.0) / totalTasks);
+    }
+
+    public long totalCompletedTasks(){
+        return taskRepository.countByStatus("COMPLETED");
+    }
+
+    public long totalPendingTasks(){
+        return taskRepository.countByStatus("PENDING");
+    }
+
+    public long countByUserIdAndMonth(long userId, long month){
+        return taskRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(t -> t.getAssignedAt() != null &&
+                        t.getAssignedAt().getMonthValue() == month)
+                .count();
+    }
+
+    public long countByUserIdAndYear(long userId, long year){
+        return taskRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(t -> t.getAssignedAt() != null &&
+                        t.getAssignedAt().getYear() == year)
+                .count();
+    }
+
+    public long countByUserIdMonthAndStatus(long userId, long month, String status){
+        return taskRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(t -> t.getAssignedAt()!=null &&
+                        t.getAssignedAt().getMonthValue()==month &&
+                        status.equalsIgnoreCase(t.getStatus()))
+                .count();
+    }
+
+    public long countByUserIdYearAndStatus(long userId, long year, String status){
+        return taskRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(t -> t.getAssignedAt()!=null &&
+                        t.getAssignedAt().getYear()==year &&
+                        status.equalsIgnoreCase(t.getStatus()))
+                .count();
+    }
+
+    public long countAttendanceByUserIdAndMonth(long userId, long month){
+        return attendanceRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(a -> a.getDate()!=null &&
+                        a.getDate().getMonthValue()==month)
+                .count();
+    }
+
+    public long countAttendanceByUserIdAndYear(long userId, long year){
+        return attendanceRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(a -> a.getDate()!=null &&
+                        a.getDate().getYear()==year)
+                .count();
+    }
+
+    public long countAttendanceByUserIdMonthAndStatus(long userId, long month, String status){
+        return attendanceRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(a -> a.getDate()!=null &&
+                        a.getDate().getMonthValue()==month &&
+                        status.equalsIgnoreCase(a.getStatus()))
+                .count();
+    }
+
+    public long countAttendanceByUserIdYearAndStatus(long userId, long year, String status){
+        return attendanceRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(a -> a.getDate()!=null &&
+                        a.getDate().getYear()==year &&
+                        status.equalsIgnoreCase(a.getStatus()))
+                .count();
+    }
+
+    public long countTasksByUserIdMonthAndYear(long userId, long month, long year){
+        return taskRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(t -> t.getAssignedAt()!=null &&
+                        t.getAssignedAt().getMonthValue()==month &&
+                        t.getAssignedAt().getYear()==year)
+                .count();
+    }
+
+    public long countAttendanceByUserIdMonthAndYear(long userId, long month, long year){
+        return attendanceRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(a -> a.getDate()!=null &&
+                        a.getDate().getMonthValue()==month &&
+                        a.getDate().getYear()==year)
+                .count();
+    }
+
+    public long countTasksByUserIdMonthYearAndStatus(long userId, long month, long year, String status){
+        return taskRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(t -> t.getAssignedAt()!=null &&
+                        t.getAssignedAt().getMonthValue()==month &&
+                        t.getAssignedAt().getYear()==year &&
+                        status.equalsIgnoreCase(t.getStatus()))
+                .count();
+    }
+
+    public long countAttendanceByUserIdMonthYearAndStatus(long userId, long month, long year, String status){
+        return attendanceRepository.findAllByUser_Id(userId)
+                .stream()
+                .filter(a -> a.getDate()!=null &&
+                        a.getDate().getMonthValue()==month &&
+                        a.getDate().getYear()==year &&
+                        status.equalsIgnoreCase(a.getStatus()))
+                .count();
+    }
+}

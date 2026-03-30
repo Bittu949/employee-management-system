@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Report</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 shrink-0 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="sidebar-menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/admin/admin_dashboard}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Dashboard</a>
+            <a th:href="@{/admin/user/allUsers}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Manage Users</a>
+            <a th:href="@{/admin/task/allTasks}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Tasks</a>
+            <a th:href="@{/admin/attendance/allRecords}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Attendance Reports</a>
+
+            <a th:href="@{/admin/performance/details}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Performance Reports
+            </a>
+
+            <a th:href="@{/admin/settings/page}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Settings</a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">Performance Reports</div>
+                <div class="sub-welcome text-gray-500 text-sm">Analyze employee productivity and task performance</div>
+            </div>
+
+            <button onclick="generateReport()"
+                    class="logout-btn menu-link w-full sm:w-auto px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition shadow-sm">
+                Export
+            </button>
+        </div>
+
+        <div class="tasks-monitoring-section mt-4 bg-white rounded-2xl shadow p-5">
+
+            <div class="section-title font-semibold text-lg mb-4">Filters</div>
+
+            <div class="filter-row flex flex-col md:flex-row gap-4">
+
+                <input type="text" id="search" placeholder="Search by employee name"
+                       class="flex-1 min-w-[200px] px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+
+                <select id="month"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Select month</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+
+                <select id="year"
+                        class="md:w-32 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Select year</option>
+                    <option th:each="y : ${years}"
+                            th:value="${y}"
+                            th:text="${y}">
+                    </option>
+                </select>
+
+            </div>
+        </div>
+
+        <div class="summary-cards-row1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">
+                    Total Employees
+                    <div class="text-xs text-gray-400">(Including inactive)</div>
+                </div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalEmployees}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Tasks Completed</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalCompletedTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Tasks Pending</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalPendingTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Task Completion %</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${averageCompletionRate + ' %'}"></div>
+            </div>
+
+        </div>
+
+        <div class="tasks-monitoring-section mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+
+            <div class="section-title font-semibold text-lg mb-3">Performance Records</div>
+
+            <div class="task-item task-header hidden md:grid grid-cols-5 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+                <div class="task-title">Employee</div>
+                <div class="assigned-to">Assigned Tasks</div>
+                <div class="deadline">Pending Tasks</div>
+                <div class="status">Task Completion %</div>
+                <div class="view">Attendance %</div>
+            </div>
+
+            <div class="task-items-group" id="task-items-group">
+
+                <div th:if="${#lists.isEmpty(performances)}" class="py-3 text-sm text-gray-500">
+                    No performance records found
+                </div>
+
+                <div th:each="performance : ${performances}"
+                     th:class="'task-item flex flex-col md:grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm ' +
+                                (${performance.status != null and performance.status.equalsIgnoreCase('INACTIVE')}
+                                ? 'bg-red-50 opacity-70' : '')">
+
+                    <div class="task-title">
+                        <span class="md:hidden font-medium">Employee:</span>
+                        <span th:text="${performance.employeeName}"></span>
+                    </div>
+
+                    <div class="assigned-to">
+                        <span class="md:hidden font-medium">Assigned:</span>
+                        <span th:text="${performance.tasksAssigned}"></span>
+                    </div>
+
+                    <div class="deadline">
+                        <span class="md:hidden font-medium">Pending:</span>
+                        <span th:text="${performance.pending}"></span>
+                    </div>
+
+                    <div class="status">
+                        <span class="md:hidden font-medium">Completion:</span>
+                        <span th:text="${performance.completionPercentage + ' %'}"></span>
+                    </div>
+
+                    <div class="view">
+                        <span class="md:hidden font-medium">Attendance:</span>
+                        <span th:text="${performance.attendancePercentage + ' %'}"></span>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="pagination-section mt-6 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white p-4 rounded-xl shadow">
+
+            <div class="label text-sm text-gray-500" id="paginationLabel"
+                 th:text="'Page '+(${currentPage}+1)+' of '+${totalPages}">
+            </div>
+
+            <div class="pagination-btn flex gap-2">
+
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/admin/performance/details(page=${currentPage - 1}, size=10)}"
+                   class="view-btn menu-link px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">
+                    Previous
+                </a>
+
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{/admin/performance/details(page=${currentPage + 1}, size=10)}"
+                   class="view-btn menu-link px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">
+                    Next
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.getElementById("search").addEventListener("keyup", () => fetchData(0));
+    document.getElementById("month").addEventListener("change", () => fetchData(0));
+    document.getElementById("year").addEventListener("change", () => fetchData(0));
+
+    let currentPage = 0;
+    let size = 10;
+
+    function fetchData(page = 0){
+        currentPage = page;
+
+        let search = document.getElementById("search").value;
+        let month = document.getElementById("month").value;
+        let year = document.getElementById("year").value;
+
+        let url = `/admin/performance/filter?search=${encodeURIComponent(search)}&month=${month}&year=${year}&page=${currentPage}&size=${size}`;
+
+        fetch(url)
+                .then(response => response.json())
+                .then(data => {displayPerformance(data.content);
+                                updatePagination(data)
+                                })
+                .catch(error => console.log(error));
+    }
+
+    function updatePagination(pageData){
+
+        let paginationDiv = document.querySelector(".pagination-btn");
+        let paginationLabel = document.getElementById("paginationLabel");
+
+        paginationLabel.innerText = `Page ${pageData.number + 1} of ${pageData.totalPages}`;
+
+        let html = "";
+
+        if(pageData.number > 0){
+            html += `<button class="px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition" onclick="fetchData(${pageData.number - 1})">Previous</button>`;
+        }
+
+        if(pageData.number < pageData.totalPages - 1){
+            html += `<button class="px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition" onclick="fetchData(${pageData.number + 1})">Next</button>`;
+        }
+
+        paginationDiv.innerHTML = html;
+    }
+
+    function displayPerformance(performanceData){
+        let container = document.getElementById("task-items-group");
+
+        if(!performanceData || performanceData.length === 0){
+            container.innerHTML = `<div class="py-3 text-sm text-gray-500">No records found</div>`;
+            return;
+        }
+
+        let html = "";
+
+        performanceData.forEach(performance => {
+            html +=
+            `
+            <div class="task-item flex flex-col md:grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm
+            ${performance.status && performance.status.toUpperCase() === 'INACTIVE'
+                ? 'bg-red-50 opacity-70'
+                : ''}">
+                <div class="task-title"><span class="md:hidden font-medium">Employee:</span> ${performance.employeeName}</div>
+                <div class="assigned-to"><span class="md:hidden font-medium">Assigned:</span> ${performance.tasksAssigned}</div>
+                <div class="deadline"><span class="md:hidden font-medium">Pending:</span> ${performance.pending}</div>
+                <div class="status"><span class="md:hidden font-medium">Completion:</span> ${performance.completionPercentage} %</div>
+                <div class="view"><span class="md:hidden font-medium">Attendance:</span> ${performance.attendancePercentage} %</div>
+            </div>
+            `
+        });
+        container.innerHTML = html;
+    }
+
+    function generateReport(){
+
+        let search = document.getElementById("search").value;
+        let month = document.getElementById("month").value;
+        let year = document.getElementById("year").value;
+
+        let url = `/admin/performance/export?search=${search}&month=${month}&year=${year}`;
+
+        Swal.fire({
+            title: 'Export Report?',
+            text: 'Do you want to download the performance report?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Export',
+            reverseButtons: true
+        }).then((result) => {
+
+            if(result.isConfirmed){
+                window.location.href = url;
+            }
+
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="sidebar-menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/admin/admin_dashboard}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Dashboard
+            </a>
+
+            <a th:href="@{/admin/user/allUsers}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Manage Users
+            </a>
+
+            <a th:href="@{/admin/task/allTasks}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Tasks
+            </a>
+
+            <a th:href="@{/admin/attendance/allRecords}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Attendance Reports
+            </a>
+
+            <a th:href="@{/admin/performance/details}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Performance Reports
+            </a>
+
+            <a th:href="@{/admin/settings/page}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Settings
+            </a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">Welcome back,</div>
+                <div class="sub-welcome text-gray-500 text-sm">Here’s what’s happening today</div>
+            </div>
+
+            <a href="#"
+               onclick="confirmLogout('/admin/logout')"
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+                Logout
+            </a>
+        </div>
+
+        <div class="summary-cards-row1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Total Tasks</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Completed</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${completedTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Pending</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${pendingTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Today's Attendance %</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${todaysAttendancePercentage + ' %'}"></div>
+            </div>
+
+        </div>
+
+        <div class="summary-cards-row2 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Total Employees</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalEmployee}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Tasks Due This Week</div>
+                <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${tasksDueThisWeek}"></div>
+            </div>
+
+        </div>
+
+        <div class="quick-actions grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
+
+            <a class="quick-item menu-link p-3 rounded-xl bg-white text-center shadow hover:shadow-md hover:bg-indigo-50 transition"
+               th:href="@{/admin/task/createPage}">Create Task</a>
+
+            <a class="quick-item menu-link p-3 rounded-xl bg-white text-center shadow hover:shadow-md hover:bg-indigo-50 transition"
+               th:href="@{/admin/task/assignPage}">Assign Task</a>
+
+            <a class="quick-item menu-link p-3 rounded-xl bg-white text-center shadow hover:shadow-md hover:bg-indigo-50 transition"
+               th:href="@{/admin/attendance/allRecords}">View Attendance Report</a>
+
+            <a class="quick-item menu-link p-3 rounded-xl bg-white text-center shadow hover:shadow-md hover:bg-indigo-50 transition"
+               th:href="@{/admin/performance/details}">View Performance Report</a>
+
+            <a class="quick-item menu-link p-3 rounded-xl bg-white text-center shadow hover:shadow-md hover:bg-indigo-50 transition"
+               th:href="@{/admin/user/allUsers}">Manage Users</a>
+
+        </div>
+
+        <div class="tasks-monitoring-section mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+
+            <div class="section-title font-semibold text-lg mb-3">Tasks Monitoring</div>
+
+            <div class="hidden md:grid grid-cols-5 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+                <div>Task Title</div>
+                <div>Assigned To</div>
+                <div>Deadline</div>
+                <div>Status</div>
+                <div>Action</div>
+            </div>
+
+            <div class="task-items-group">
+
+                <div class="task-item grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm"
+                     th:each="task : ${allTasks}">
+
+                    <div><span class="md:hidden font-medium">Task:</span> <span th:text="${task.taskTitle}"></span></div>
+                    <div><span class="md:hidden font-medium">User:</span> <span th:text="${task.user != null ? task.user.fullName : 'Unassigned'}"></span></div>
+                    <div><span class="md:hidden font-medium">Deadline:</span> <span th:text="${task.deadline}"></span></div>
+                    <div><span class="md:hidden font-medium">Status:</span> <span th:text="${task.status}"></span></div>
+
+                    <div>
+                        <a th:href="@{/admin/task/{taskId}/view(taskId=${task.id})}"
+                           class="view-btn menu-link inline-block mt-2 md:mt-0 px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">
+                            Quick Action
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="pagination-section mt-6 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white p-4 rounded-xl shadow">
+
+            <div class="label text-sm text-gray-500"
+                 th:if="${totalPages == 0}">
+                No data found !
+            </div>
+
+            <div class="label text-sm text-gray-500"
+                 th:if="${totalPages > 0}"
+                 th:text="'Page ' + (${currentPage + 1}) + ' of ' + ${totalPages}">
+            </div>
+
+            <div class="pagination-btn flex gap-2">
+
+                <a class="view-btn menu-link px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition"
+                   th:if="${currentPage > 0}"
+                   th:href="@{/admin/admin_dashboard(page=${currentPage - 1}, size=10)}">
+                    Previous
+                </a>
+
+                <a class="view-btn menu-link px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition"
+                   th:if="${currentPage < totalPages-1}"
+                   th:href="@{/admin/admin_dashboard(page=${currentPage + 1}, size=10)}">
+                    Next
+                </a>
+
+            </div>
+        </div>
+
+        <div class="attendance-overview mt-6 bg-white rounded-2xl shadow p-4">
+
+            <div class="overview-label font-semibold text-lg mb-4">
+                Today Attendance Summary
+            </div>
+
+            <div class="attendance-overview-items grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+                <div class="overview-item p-4 rounded-xl bg-gray-50">
+                    <div class="overview-title text-sm text-gray-500">Present Count</div>
+                    <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${presentCount}"></div>
+                </div>
+
+                <div class="overview-item p-4 rounded-xl bg-gray-50">
+                    <div class="overview-title text-sm text-gray-500">Absent Count</div>
+                    <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${absentCount}"></div>
+                </div>
+
+                <div class="overview-item p-4 rounded-xl bg-gray-50">
+                    <div class="overview-title text-sm text-gray-500">Attendance % Today</div>
+                    <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${attendancePercentageToday + ' %'}"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+
+    function confirmLogout(logoutUrl) {
+        Swal.fire({
+            title: 'Logout?',
+            text: 'You will be logged out of your session',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Logout',
+            reverseButtons: true,
+            focusCancel: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = logoutUrl;
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

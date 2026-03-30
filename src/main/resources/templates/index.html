@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="relative min-h-screen flex items-center justify-center font-sans bg-gradient-to-br from-slate-100 via-white to-indigo-200 overflow-hidden">
+
+<div class="absolute w-96 h-96 bg-indigo-400 opacity-20 blur-3xl rounded-full -top-20 -left-20"></div>
+<div class="absolute w-96 h-96 bg-purple-400 opacity-20 blur-3xl rounded-full bottom-0 right-0"></div>
+
+<div class="login-box relative w-full max-w-md p-8 rounded-3xl
+                bg-white/70 backdrop-blur-xl
+                border border-white/40
+                shadow-[0_20px_60px_rgba(0,0,0,0.15)]
+                transition duration-300 hover:shadow-[0_25px_80px_rgba(0,0,0,0.2)]">
+
+    <div class="login-title text-center text-3xl font-bold text-gray-800 mb-6 tracking-tight">
+        Welcome Back
+    </div>
+
+    <form onsubmit="login(event)" class="space-y-6" novalidate>
+
+        <div class="input-group relative">
+            <input type="text" id="username" placeholder="Enter email" required
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300
+                              bg-white/60 backdrop-blur-sm
+                              focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+                              transition duration-200 shadow-sm focus:shadow-md">
+        </div>
+
+        <div class="input-group relative">
+            <input type="password" id="password" placeholder="Enter password" required
+                   class="w-full px-4 py-3 rounded-xl border border-gray-300
+                              bg-white/60 backdrop-blur-sm
+                              focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+                              transition duration-200 shadow-sm focus:shadow-md">
+        </div>
+
+        <button type="submit"
+                class="w-full py-3 rounded-xl font-semibold text-white
+                           bg-gradient-to-r from-indigo-500 to-purple-500
+                           hover:from-indigo-600 hover:to-purple-600
+                           transition duration-200 transform hover:scale-[1.02] active:scale-95
+                           shadow-lg hover:shadow-xl">
+            Login
+        </button>
+    </form>
+
+</div>
+
+<script>
+
+    const toastColors = {
+        success: "#22c55e",
+        error: "#ef4444",
+        info: "#3b82f6"
+    };
+
+    function showToast(message, type = "error") {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: toastColors[type] || toastColors.error,
+            close: true
+        }).showToast();
+    }
+
+    // ✅ 🔥 HANDLE SESSION EXPIRED / ERROR FROM URL
+    window.onload = function () {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.has("expired")) {
+            showToast("Session expired. Please login again.", "error");
+        }
+
+        if (params.has("error")) {
+            showToast("Invalid session. Please login again.", "error");
+        }
+    };
+
+    async function login(event){
+        event.preventDefault();
+
+        let email = document.getElementById("username").value.trim();
+        let password = document.getElementById("password").value.trim();
+
+        if (!email || !password) {
+            showToast("Please fill all fields", "error");
+            return;
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(email)) {
+            showToast("Enter a valid email address", "error");
+            return;
+        }
+
+        const btn = event.target.querySelector("button");
+        btn.disabled = true;
+        btn.innerText = "Logging in...";
+
+        try {
+            let response = await fetch("/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            if(response.ok){
+
+                let userRes = await fetch("/auth/me");
+                let data = await userRes.json();
+
+                showToast("Login successful", "success");
+
+                setTimeout(() => {
+                    if(data.role === "ADMIN"){
+                        window.location.href = "/admin/admin_dashboard";
+                    } else {
+                        window.location.href = "/employee/employee_dashboard";
+                    }
+                }, 1200);
+
+            } else {
+                btn.disabled = false;
+                btn.innerText = "Login";
+                showToast("Invalid email or password", "error");
+            }
+
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerText = "Login";
+            showToast("Server error. Try again", "error");
+        }
+    }
+</script>
+
+</body>
+</html>

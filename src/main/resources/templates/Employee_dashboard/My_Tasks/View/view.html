@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Details</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/employee/dashboard}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Dashboard
+            </a>
+
+            <a th:href="@{/employee/profile}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Profile
+            </a>
+
+            <a th:href="@{/employee/attendance}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Attendance
+            </a>
+
+            <a th:href="@{/employee/settings}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Settings
+            </a>
+
+            <a th:href="@{/employee/tasks}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                My Tasks <span th:text="${pendingTasks}">0</span>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">
+                    Task Details
+                </div>
+                <div class="sub-welcome text-gray-500 text-sm">
+                    View task information
+                </div>
+            </div>
+
+            <a href="#" onclick="confirmLogout(event)"
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+                Logout
+            </a>
+        </div>
+
+        <div class="task-card bg-white rounded-2xl shadow p-6 max-w-3xl">
+
+            <div class="section-title font-semibold text-lg mb-5">
+                Task Information
+            </div>
+
+            <div class="task-info space-y-4">
+
+                <div class="info-row">
+                    <div class="text-sm text-gray-500">Task Title</div>
+                    <div class="text-base font-medium mt-1" th:text="${task.taskTitle}">Title</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="text-sm text-gray-500">Description</div>
+                    <div class="text-base mt-1" th:text="${task.description}">Description</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="text-sm text-gray-500">Deadline</div>
+                    <div class="text-base mt-1" th:text="${task.deadline}">Date</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="text-sm text-gray-500">Priority</div>
+                    <div class="text-base mt-1" th:text="${task.priority}">Priority</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="text-sm text-gray-500">Assigned Date</div>
+                    <div class="text-base mt-1" th:text="${task.assignedAt}">Assigned</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="text-sm text-gray-500 mb-1">Status</div>
+
+                    <select class="status-select px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary"
+                            id="statusSelect"
+                            th:data-id="${task.id}">
+
+                        <option value="Pending" th:selected="${task.status == 'Pending'}">Pending</option>
+                        <option value="In Progress" th:selected="${task.status == 'In Progress'}">In Progress</option>
+                        <option value="Completed" th:selected="${task.status == 'Completed'}">Completed</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="action-buttons flex flex-col sm:flex-row gap-3 mt-6">
+
+                <button class="update-btn px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                        onclick="updateStatus()">
+                    Update Status
+                </button>
+
+                <a th:href="@{/employee/tasks}"
+                   class="back-btn px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition text-center">
+                    Back
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    function showToast(message, success = true) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: success ? "#22c55e" : "#ef4444",
+            close: true,
+            stopOnFocus: true
+        }).showToast();
+    }
+
+    function confirmLogout(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: "Logout?",
+            text: "You will be signed out of your account.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#4f46e5",
+            cancelButtonColor: "#ef4444",
+            confirmButtonText: "Yes, logout",
+            cancelButtonText: "Stay here",
+            reverseButtons: true
+        })
+        .then(result => {
+            if (result.isConfirmed) {
+                setTimeout(() => {
+                    window.location.href = "/employee/logout";
+                }, 300);
+            } else {
+                showToast("Logout cancelled", false);
+            }
+        });
+    }
+
+    function updateStatus() {
+
+        const select = document.getElementById("statusSelect");
+        const taskId = select.getAttribute("data-id");
+        const status = select.value;
+
+        Swal.fire({
+            title: "Update Status?",
+            text: "Do you want to change the task status?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#4f46e5",
+            cancelButtonColor: "#ef4444",
+            confirmButtonText: "Yes, update"
+        })
+        .then(result => {
+
+            if (result.isConfirmed) {
+
+                fetch('/employee/task/update-status?taskId=' + taskId + '&status=' + status, {
+                    method: 'POST'
+                })
+                .then(() => {
+                    showToast("Status updated successfully", true);
+
+                    setTimeout(() => location.reload(), 800);
+                })
+                .catch(() => {
+                    showToast("Failed to update status", false);
+                });
+
+            } else {
+                showToast("Update cancelled", false);
+            }
+
+        });
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center">
+
+<div class="bg-white shadow-xl rounded-2xl p-10 max-w-md w-full text-center">
+
+    <h1 class="text-6xl font-bold text-red-500" th:text="${statusCode}">500</h1>
+
+    <h2 class="mt-4 text-2xl font-semibold text-gray-800">
+        <span th:if="${statusCode == 404}">Page Not Found</span>
+        <span th:if="${statusCode == 403}">Access Denied</span>
+        <span th:if="${statusCode == 401}">Unauthorized</span>
+        <span th:if="${statusCode == 400}">Bad Request</span>
+        <span th:if="${statusCode == 409}">Conflict</span>
+        <span th:if="${statusCode == 500}">Server Error</span>
+    </h2>
+
+    <p class="mt-3 text-gray-600 text-sm" th:text="${errorMessage}">
+        Something went wrong
+    </p>
+
+    <div class="my-6 border-t"></div>
+
+    <div class="flex justify-center gap-3">
+
+        <a th:href="@{/admin/admin_dashboard}"
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+            Dashboard
+        </a>
+
+        <a href="javascript:history.back()"
+           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            Go Back
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

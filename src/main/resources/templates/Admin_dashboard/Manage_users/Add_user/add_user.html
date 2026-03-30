@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 shrink-0 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="sidebar-menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/admin/admin_dashboard}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Dashboard</a>
+
+            <a th:href="@{/admin/user/allUsers}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Manage Users
+            </a>
+
+            <a th:href="@{/admin/task/allTasks}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Tasks</a>
+            <a th:href="@{/admin/attendance/allRecords}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Attendance Reports</a>
+            <a th:href="@{/admin/performance/details}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Performance Reports</a>
+            <a th:href="@{/admin/settings/page}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Settings</a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">Add User</div>
+                <div class="sub-welcome text-gray-500 text-sm">Create a new employee or admin account</div>
+            </div>
+
+            <a th:href="@{/admin/user/allUsers}"
+               class="logout-btn menu-link w-full sm:w-auto px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition shadow-sm text-center">
+                Back
+            </a>
+        </div>
+
+        <div class="tasks-monitoring-section mt-6 bg-white rounded-2xl shadow p-5">
+
+            <div class="section-title font-semibold text-lg mb-5">User Details</div>
+
+            <form id="addUserForm"
+                  th:action="@{/admin/user/add}" method="post"
+                  class="grid grid-cols-1 md:grid-cols-2 gap-5"
+                  novalidate>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Full Name</label>
+                    <input name="fullName" type="text" required
+                           class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
+                    <input name="email" type="email" required
+                           class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Username</label>
+                    <input name="userName" type="text" required
+                           class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Password</label>
+                    <input name="password" type="password" required
+                           class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Confirm Password</label>
+                    <input name="confirmPassword" type="password" required
+                           class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Role</label>
+                    <select name="role" required
+                            class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                        <option value="">Select</option>
+                        <option value="EMPLOYEE">Employee</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+
+                <div class="form-group flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</label>
+                    <select name="status" required
+                            class="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                        <option value="">Select</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="form-actions col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:justify-end gap-3 mt-2">
+
+                    <button type="submit"
+                            class="view-btn w-full sm:w-auto px-4 py-2 rounded-lg text-white font-medium
+                                   bg-gradient-to-r from-indigo-500 to-purple-500
+                                   hover:from-indigo-600 hover:to-purple-600
+                                   transition transform hover:scale-[1.02] active:scale-95 shadow">
+                        Add User
+                    </button>
+
+                    <a th:href="@{/admin/user/allUsers}"
+                       class="view-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+<script>
+
+    const form = document.getElementById("addUserForm");
+
+    form.addEventListener("submit", function(e){
+
+        e.preventDefault(); // stop default submit
+
+        const fullName = form.querySelector("input[name='fullName']").value;
+        const email = form.querySelector("input[name='email']").value;
+        const userName = form.querySelector("input[name='userName']").value;
+        const password = form.querySelector("input[name='password']").value;
+        const confirmPassword = form.querySelector("input[name='confirmPassword']").value;
+        const role = form.querySelector("select[name='role']").value;
+        const status = form.querySelector("select[name='status']").value;
+
+        if(!fullName || !email || !userName || !password || !confirmPassword || !role || !status){
+            Swal.fire({
+                icon: 'error',
+                title: 'Missing Fields',
+                text: 'Please fill all fields'
+            });
+            return;
+        }
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!emailPattern.test(email)){
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Email',
+                text: 'Please enter a valid email address'
+            });
+            return;
+        }
+
+        if(password.length < 8){
+            Swal.fire({
+                icon: 'error',
+                title: 'Weak Password',
+                text: 'Password must be at least 8 characters'
+            });
+            return;
+        }
+
+        if(password !== confirmPassword){
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'Passwords do not match'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Add User?',
+            text: 'Do you want to create this user?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Add',
+            reverseButtons: true
+        }).then((result) => {
+
+            if(result.isConfirmed){
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'User Created',
+                    showConfirmButton: false,
+                    timer: 1200
+                });
+
+                setTimeout(() => {
+                    form.submit();
+                }, 1000);
+            }
+        });
+
+    });
+
+</script>
+</body>
+</html>

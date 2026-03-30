@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/employee/employee_dashboard}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Dashboard
+            </a>
+
+            <a th:href="@{/employee/profile}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Profile
+            </a>
+
+            <a th:href="@{/employee/attendance}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Attendance
+            </a>
+
+            <a th:href="@{/employee/settings}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Settings
+            </a>
+
+            <a th:href="@{/employee/tasks}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                My Tasks <span th:text="${pendingTasks}">0</span>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">
+                    My Tasks
+                </div>
+                <div class="sub-welcome text-gray-500 text-sm">
+                    Tasks assigned to you
+                </div>
+            </div>
+
+            <a href="#" onclick="confirmLogout(event)"
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+                Logout
+            </a>
+        </div>
+
+        <div class="summary-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <div class="stat-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">Total Tasks</div>
+                <div class="value text-xl font-bold mt-2" th:text="${totalTasks}">0</div>
+            </div>
+
+            <div class="stat-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">Completed</div>
+                <div class="value text-xl font-bold mt-2" th:text="${completedTasks}">0</div>
+            </div>
+
+            <div class="stat-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">Pending</div>
+                <div class="value text-xl font-bold mt-2" th:text="${pendingTasks}">0</div>
+            </div>
+
+        </div>
+
+        <div class="filter-section mt-6 bg-white rounded-2xl shadow p-5">
+
+            <div class="flex flex-col md:flex-row gap-4">
+
+                <input type="text" id="search"
+                       placeholder="Search task..."
+                       class="flex-1 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+
+                <select id="status"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="">All Status</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+
+                <select id="priority"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="">All Priority</option>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="task-list mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+
+            <div class="section-title font-semibold text-lg mb-3">Assigned Tasks</div>
+
+            <div class="task-header hidden md:grid grid-cols-5 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+                <div>Task Title</div>
+                <div>Deadline</div>
+                <div>Priority</div>
+                <div>Status</div>
+                <div>Action</div>
+            </div>
+
+            <div id="taskContainer">
+
+                <div th:if="${tasks == null || tasks.isEmpty()}"
+                     class="task-row py-3 text-sm text-gray-500">
+                    No tasks available
+                </div>
+
+                <div th:each="task : ${tasks}"
+                     class="task-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm">
+
+                    <div>
+                        <span class="md:hidden font-medium">Task:</span>
+                        <span th:text="${task.taskTitle}">Task</span>
+                    </div>
+
+                    <div>
+                        <span class="md:hidden font-medium">Deadline:</span>
+                        <span th:text="${task.deadline}">Date</span>
+                    </div>
+
+                    <div class="priority">
+                        <span th:text="${task.priority}">Priority</span>
+                    </div>
+
+                    <div class="status">
+                        <span th:text="${task.status}">Status</span>
+                    </div>
+
+                    <div class="actions flex flex-wrap gap-2">
+
+                        <a th:href="@{'/employee/task/' + ${task.id}}"
+                           class="view-btn px-2 py-1 border rounded hover:bg-gray-100">
+                            View
+                        </a>
+
+                        <select class="status-select px-2 py-1 border rounded"
+                                th:data-id="${task.id}">
+
+                            <option value="PENDING" th:selected="${task.status == 'PENDING'}">Pending</option>
+                            <option value="IN_PROGRESS" th:selected="${task.status == 'IN_PROGRESS'}">In Progress</option>
+                            <option value="COMPLETED" th:selected="${task.status == 'COMPLETED'}">Completed</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    function showToast(message, success = true) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            backgroundColor: success ? "#22c55e" : "#ef4444",
+            close: true,
+            stopOnFocus: true
+        }).showToast();
+    }
+
+    function confirmLogout(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: "Logout?",
+            text: "You will be signed out of your account.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#4f46e5",
+            cancelButtonColor: "#ef4444",
+            confirmButtonText: "Yes, logout",
+            cancelButtonText: "Stay here",
+            reverseButtons: true
+        })
+        .then(result => {
+            if (result.isConfirmed) {
+                setTimeout(() => {
+                    window.location.href = "/employee/logout";
+                }, 300);
+            } else {
+                showToast("Logout cancelled", false);
+            }
+        });
+    }
+
+    document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("status-select")) {
+
+            const taskId = e.target.getAttribute('data-id');
+            const status = e.target.value;
+
+            fetch('/employee/task/update-status?taskId=' + taskId + '&status=' + status, {
+                method: 'POST'
+            })
+            .then(() => {
+                showToast("Status updated successfully", true);
+                setTimeout(() => location.reload(), 800);
+            })
+            .catch(() => showToast("Failed to update status", false));
+        }
+    });
+
+
+    document.getElementById("search").addEventListener("input", fetchTasks);
+    document.getElementById("status").addEventListener("change", fetchTasks);
+    document.getElementById("priority").addEventListener("change", fetchTasks);
+
+    function fetchTasks() {
+        const search = document.getElementById("search").value;
+        const status = document.getElementById("status").value;
+        const priority = document.getElementById("priority").value;
+
+        fetch(`/employee/tasks/filter?search=${search}&status=${status}&priority=${priority}`)
+            .then(res => res.json())
+            .then(data => displayData(data))
+            .catch(() => showToast("Error loading tasks", false));
+    }
+
+    function displayData(data){
+        let container = document.getElementById("taskContainer");
+        let html = "";
+
+        if(!data || data.length === 0){
+            html = `<div class="py-3 text-sm text-gray-500">No tasks available</div>`;
+        } else {
+            data.forEach(task => {
+                html += `
+                <div class="task-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm">
+                    <div>${task.taskTitle || ''}</div>
+                    <div>${task.deadline || ''}</div>
+                    <div>${task.priority || ''}</div>
+                    <div>${task.status || ''}</div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <a href="/employee/task/${task.id}" class="px-2 py-1 border rounded hover:bg-gray-100">View</a>
+
+                        <select class="status-select px-2 py-1 border rounded" data-id="${task.id}">
+                            <option value="PENDING" ${task.status === 'PENDING' ? 'selected' : ''}>Pending</option>
+                            <option value="IN_PROGRESS" ${task.status === 'IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
+                            <option value="COMPLETED" ${task.status === 'COMPLETED' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </div>
+                </div>
+                `;
+            });
+        }
+        container.innerHTML = html;
+    }
+
+</script>
+
+</body>
+</html>

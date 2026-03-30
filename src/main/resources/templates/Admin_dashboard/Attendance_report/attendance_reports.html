@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 shrink-0 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+        <div class="sidebar-menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/admin/admin_dashboard}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Dashboard</a>
+            <a th:href="@{/admin/user/allUsers}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Manage Users</a>
+            <a th:href="@{/admin/task/allTasks}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Tasks</a>
+
+            <a th:href="@{/admin/attendance/allRecords}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Attendance Reports
+            </a>
+
+            <a th:href="@{/admin/performance/details}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Performance Reports</a>
+            <a th:href="@{/admin/settings/page}" class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">Settings</a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">Attendance Reports</div>
+                <div class="sub-welcome text-gray-500 text-sm">View and analyze employee attendance records</div>
+            </div>
+
+            <button onclick="exportReport()"
+                    class="logout-btn menu-link w-full sm:w-auto px-4 py-2 rounded-lg border bg-white hover:bg-gray-100 transition shadow-sm">
+                Export
+            </button>
+        </div>
+
+        <div class="tasks-monitoring-section mt-4 bg-white rounded-2xl shadow p-5">
+            <div class="section-title font-semibold text-lg mb-4">Filters</div>
+
+            <div class="filter-row flex flex-col md:flex-row gap-4">
+
+                <input type="text" id="searchName" placeholder="Search by employee name"
+                       class="flex-1 min-w-[200px] px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+
+                <select id="monthFilter"
+                        class="md:w-36 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Month</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+
+                <select id="yearFilter"
+                        class="md:w-32 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Year</option>
+                    <option th:each="y : ${years}"
+                            th:value="${y}"
+                            th:text="${y}">
+                    </option>
+                </select>
+
+                <select id="statusFilter"
+                        class="md:w-36 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="">Status</option>
+                    <option value="PRESENT">Present</option>
+                    <option value="ABSENT">Absent</option>
+                </select>
+
+            </div>
+        </div>
+
+        <div class="summary-cards-row1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">
+                    Total Employees
+                    <div class="text-xs text-gray-400">(Active only)</div>
+                </div>
+                <div class="value text-xl font-bold mt-2" th:text="${totalEmployees}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Present</div>
+                <div class="value text-xl font-bold mt-2" th:text="${presentCount}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Absent</div>
+                <div class="value text-xl font-bold mt-2" th:text="${absentCount}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+                <div class="label text-sm text-gray-500">Attendance %</div>
+                <div class="value text-xl font-bold mt-2" th:text="${attendancePercentage + ' %'}"></div>
+            </div>
+
+        </div>
+
+        <div class="tasks-monitoring-section mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+            <div class="section-title font-semibold text-lg mb-3">Attendance Records</div>
+
+            <div class="task-item task-header hidden md:grid grid-cols-6 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+                <div>Employee</div>
+                <div>Date</div>
+                <div>Check In</div>
+                <div>Check Out</div>
+                <div>Hours</div>
+                <div>Status</div>
+            </div>
+
+            <div class="task-items-group" id="attendanceContainer">
+
+                <div th:each="attendance : ${attendanceRecords}"
+                     class="task-item flex flex-col md:grid md:grid-cols-6 gap-2 md:gap-0 py-3 border-b text-sm">
+
+                    <div>
+                        <span class="md:hidden font-medium">Employee:</span>
+                        <span th:text="${attendance.user.fullName}"></span>
+                    </div>
+                    <div>
+                        <span class="md:hidden font-medium">Date:</span>
+                        <span th:text="${attendance.date}"></span>
+                    </div>
+                    <div>
+                        <span class="md:hidden font-medium">Check In:</span>
+                        <span th:if="${attendance != null and attendance.checkInTime != null}" th:text="${attendance.checkInTime}"></span>
+                        <span th:if="${attendance == null or attendance.checkInTime == null}">--:--</span>
+                    </div>
+                    <div>
+                        <span class="md:hidden font-medium">Check Out:</span>
+                        <span th:if="${attendance != null and attendance.checkOutTime != null}" th:text="${attendance.checkOutTime}"></span>
+                        <span th:if="${attendance == null or attendance.checkOutTime == null}">--:--</span>
+                    </div>
+                    <div>
+                        <span class="md:hidden font-medium">Hours:</span>
+                        <span th:if="${attendance != null and attendance.workingHours != null}" th:text="${attendance.workingHours}"></span>
+                        <span th:if="${attendance == null or attendance.workingHours == null}">--:--</span>
+                    </div>
+                    <div><span class="md:hidden font-medium">Status:</span>
+                        <span th:text="${attendance.status}"
+                              th:classappend="${#strings.equalsIgnoreCase(attendance.status, 'PRESENT')}
+                                    ? 'text-green-600 font-semibold'
+                                    : 'text-red-600 font-semibold'">
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="pagination-section mt-6 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white p-4 rounded-xl shadow" id="pagination-container">
+
+            <div th:if="${totalPages == 0}" class="label text-sm text-gray-500">
+                No records found
+            </div>
+
+            <div th:if="${totalPages > 0}" class="label text-sm text-gray-500">
+                Page [[${currentPage + 1}]] of [[${totalPages}]]
+            </div>
+
+            <div class="pagination-btn flex gap-2">
+
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/admin/attendance/allRecords(page=${currentPage - 1}, size=10)}"
+                   class="view-btn px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">
+                    Previous
+                </a>
+
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{/admin/attendance/allRecords(page=${currentPage + 1}, size=10)}"
+                   class="view-btn px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">
+                    Next
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.getElementById("searchName").addEventListener("keyup", () => fetchData(0));
+    document.getElementById("monthFilter").addEventListener("change", () => fetchData(0));
+    document.getElementById("yearFilter").addEventListener("change", () => fetchData(0));
+    document.getElementById("statusFilter").addEventListener("change", () => fetchData(0));
+
+    let size = 10;
+
+    function fetchData(page = 0) {
+        let name = document.getElementById("searchName").value;
+        let month = document.getElementById("monthFilter").value;
+        let year = document.getElementById("yearFilter").value;
+        let status = document.getElementById("statusFilter").value;
+
+        let url = `/admin/attendance/filter?name=${encodeURIComponent(name)}&month=${month}&year=${year}&status=${status}&page=${page}&size=${size}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                displayData(data.content);
+                changePagination(data);
+            })
+            .catch(error => console.error(error));
+    }
+
+    function changePagination(data){
+        let container = document.getElementById("pagination-container");
+        let html = "";
+
+        if(data.totalPages > 0){
+            html+= `<div class="label text-sm text-gray-500">Page ${data.number + 1} of ${data.totalPages}</div>`;
+        }
+
+        html += `<div class="pagination-btn flex gap-2">`;
+
+        if(data.number > 0){
+            html += `<button onclick="fetchData(${data.number - 1})"
+                     class="px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">Previous</button>`;
+        }
+
+        if(data.number < data.totalPages-1){
+            html += `<button onclick="fetchData(${data.number + 1})"
+                     class="px-3 py-1 rounded-lg border bg-gray-50 hover:bg-gray-100 transition">Next</button>`;
+        }
+
+        html+=`</div>`;
+        container.innerHTML = html;
+    }
+
+    function displayData(data) {
+        let container = document.getElementById("attendanceContainer");
+        container.innerHTML = "";
+
+        if(data.length === 0){
+            container.innerHTML = `<div class="py-3 text-sm text-gray-500">No records found</div>`;
+            return;
+        }
+
+        data.forEach(att => {
+            container.innerHTML += `
+                <div class="task-item flex flex-col md:grid md:grid-cols-6 gap-2 md:gap-0 py-3 border-b text-sm">
+                    <div><span class="md:hidden font-medium">Employee:</span> ${(att.user && att.user.fullName) ? att.user.fullName : '--:--'}</div>
+                    <div><span class="md:hidden font-medium">Date:</span> ${att.date ?? '--:--'}</div>
+                    <div><span class="md:hidden font-medium">Check In:</span> ${att.checkInTime ?? '--:--'}</div>
+                    <div><span class="md:hidden font-medium">Check Out:</span> ${att.checkOutTime ?? '--:--'}</div>
+                    <div><span class="md:hidden font-medium">Hours:</span> ${att.workingHours ?? '--:--'}</div>
+                    <div>
+                        <span class="md:hidden font-medium">Status:</span>
+                        <span class="${
+                            att.status?.toUpperCase() === 'PRESENT'
+                            ? 'text-green-600 font-semibold'
+                            : 'text-red-600 font-semibold'}">
+                            ${att.status ?? '--:--'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function exportReport(){
+
+        let search = document.getElementById("searchName").value;
+        let month = document.getElementById("monthFilter").value;
+        let year = document.getElementById("yearFilter").value;
+        let status = document.getElementById("statusFilter").value;
+
+        let url = `/admin/attendance/export?search=${search}&month=${month}&year=${year}&status=${status}`;
+
+        Swal.fire({
+            title: 'Export Report?',
+            text: 'Do you want to download the attendance report?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Export',
+            reverseButtons: true
+        }).then((result) => {
+
+            if(result.isConfirmed){
+                window.location.href = url;
+            }
+
+        });
+    }
+</script>
+
+</body>
+</html>

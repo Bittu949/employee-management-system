@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 shrink-0 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+        <div class="sidebar-menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/admin/admin_dashboard}" class="menu-item menu-link px-4 py-2 rounded-xl hover:bg-gray-100">Dashboard</a>
+            <a th:href="@{/admin/user/allUsers}" class="menu-item menu-link px-4 py-2 rounded-xl hover:bg-gray-100">Manage Users</a>
+
+            <a th:href="@{/admin/task/allTasks}"
+               class="menu-item active menu-link px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Tasks
+            </a>
+
+            <a th:href="@{/admin/attendance/allRecords}" class="menu-item menu-link px-4 py-2 rounded-xl hover:bg-gray-100">Attendance Reports</a>
+            <a th:href="@{/admin/performance/details}" class="menu-item menu-link px-4 py-2 rounded-xl hover:bg-gray-100">Performance Reports</a>
+            <a th:href="@{/admin/settings/page}" class="menu-item menu-link px-4 py-2 rounded-xl hover:bg-gray-100">Settings</a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">Tasks</div>
+                <div class="sub-welcome text-gray-500 text-sm">Create, assign, and monitor tasks</div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <a class="view-btn menu-link text-center px-4 py-2 rounded-lg border bg-white hover:bg-gray-100"
+                   th:href="@{/admin/task/createPage}">
+                    Create Task
+                </a>
+                <a class="view-btn menu-link text-center px-4 py-2 rounded-lg border bg-white hover:bg-gray-100"
+                   th:href="@{/admin/task/assignPage}">
+                    Assign Task
+                </a>
+            </div>
+        </div>
+
+        <div class="tasks-monitoring-section mt-4 bg-white rounded-2xl shadow p-5">
+            <div class="section-title font-semibold text-lg mb-4">Filters</div>
+
+            <div class="filter-row flex flex-col md:flex-row gap-4">
+
+                <input type="text" id="search"
+                       placeholder="Search by title / description"
+                       class="flex-1 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+
+                <select id="status"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="ALL">All</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+
+                <select id="users"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="0">All</option>
+                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
+                </select>
+
+                <select id="deadline"
+                        class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                    <option value="ALL">All</option>
+                    <option value="TODAY">Today</option>
+                    <option value="THISWEEK">This Week</option>
+                    <option value="OVERDUE">Overdue</option>
+                </select>
+
+            </div>
+        </div>
+
+        <div class="summary-cards-row1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">Total Tasks</div>
+                <div class="value text-xl font-bold mt-2" th:text="${totalTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">Pending</div>
+                <div class="value text-xl font-bold mt-2" th:text="${pendingTasks}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">In Progress</div>
+                <div class="value text-xl font-bold mt-2" th:text="${inProgressTask}"></div>
+            </div>
+
+            <div class="smry-card p-4 rounded-2xl bg-white shadow">
+                <div class="label text-sm text-gray-500">Completed</div>
+                <div class="value text-xl font-bold mt-2" th:text="${completedTask}"></div>
+            </div>
+
+        </div>
+
+        <div class="tasks-monitoring-section mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+            <div class="section-title font-semibold text-lg mb-3">Task List</div>
+
+            <div class="task-item task-header hidden md:grid grid-cols-6 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+                <div>Task</div>
+                <div>Assigned</div>
+                <div>Deadline</div>
+                <div>Priority</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+
+            <div class="task-items-group" id="task-items-group">
+
+                <div class="task-item flex flex-col md:grid md:grid-cols-6 gap-2 md:gap-0 py-3 border-b text-sm"
+                     th:each="task : ${tasks}">
+
+                    <div><span class="md:hidden font-medium">Task:</span> <span th:text="${task.taskTitle}"></span></div>
+                    <div><span class="md:hidden font-medium">Assigned:</span> <span th:text="${task.user != null ? task.user.fullName : 'Unassigned'}"></span></div>
+                    <div><span class="md:hidden font-medium">Deadline:</span> <span th:text="${task.deadline}"></span></div>
+                    <div><span class="md:hidden font-medium">Priority:</span> <span th:text="${task.priority}"></span></div>
+                    <div><span class="md:hidden font-medium">Status:</span> <span th:text="${task.status}"></span></div>
+
+                    <div class="view flex flex-wrap gap-2">
+                        <a th:href="@{/admin/task/{taskId}/view(taskId=${task.id})}" class="view-btn px-2 py-1 border rounded hover:bg-gray-100">View</a>
+                        <a th:href="@{/admin/task/{taskId}/editPage(taskId=${task.id})}" class="view-btn px-2 py-1 border rounded hover:bg-gray-100">Edit</a>
+                        <button type="button"
+                                th:onclick="'deleteTask(' + ${task.id} + ')'"
+                                class="view-btn px-2 py-1 border rounded hover:bg-gray-100">
+                            Delete
+                        </button>
+                        <a th:href="@{/admin/task/{taskId}/reassignPage(taskId=${task.id})}" class="view-btn px-2 py-1 border rounded hover:bg-gray-100">Reassign</a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="pagination-section mt-6 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white p-4 rounded-xl shadow">
+
+            <div class="label text-sm text-gray-500"
+                 th:if="${totalPages == 0}">
+                No data found !
+            </div>
+
+            <div class="label text-sm text-gray-500"
+                 th:if="${totalPages > 0}"
+                 th:text="'Page ' + (${currentPage + 1}) + ' of ' + ${totalPages}">
+            </div>
+
+            <div class="pagination-btn flex gap-2">
+
+                <a class="view-btn px-3 py-1 border rounded hover:bg-gray-100"
+                   th:if="${currentPage > 0}"
+                   th:href="@{/admin/task/allTasks(page=${currentPage - 1}, size=10)}">
+                    Previous
+                </a>
+
+                <a class="view-btn px-3 py-1 border rounded hover:bg-gray-100"
+                   th:if="${currentPage < totalPages-1}"
+                   th:href="@{/admin/task/allTasks(page=${currentPage + 1}, size=10)}">
+                    Next
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.getElementById("search").addEventListener("keyup",() => produceData(0));
+    document.getElementById("status").addEventListener("change",() => produceData(0));
+    document.getElementById("users").addEventListener("change",() => produceData(0));
+    document.getElementById("deadline").addEventListener("change",() => produceData(0));
+
+    let currentPage = 0;
+
+    function produceData(page = 0){
+        let search = document.getElementById("search").value;
+        let status = document.getElementById("status").value;
+        let userId = document.getElementById("users").value;
+        let deadline = document.getElementById("deadline").value;
+        let size = 10;
+
+        currentPage = page;
+
+        let url = `/admin/task/filter?search=${encodeURIComponent(search)}&status=${status}&userId=${userId}&deadline=${deadline}&page=${page}&size=${size}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+
+                if(data.content.length === 0 && data.totalPages > 0 && page > 0){
+                    produceData(page - 1);
+                    return;
+                }
+
+                showData(data.content);
+                updatePagination(data);
+            })
+            .catch(error => console.log(error));
+    }
+
+    function updatePagination(data){
+        let container = document.querySelector(".pagination-section");
+        let html = "";
+
+        if(data.totalPages === 0){
+            html += `<div class="label text-sm text-gray-500">No data found !</div>`;
+        } else {
+            html += `<div class="label text-sm text-gray-500">Page ${data.number + 1} of ${data.totalPages}</div>`;
+        }
+
+        html += `<div class="pagination-btn flex gap-2">`;
+
+        if(data.number > 0){
+            html += `<button class="px-3 py-1 border rounded hover:bg-gray-100"
+                        onclick="produceData(${data.number - 1})">Previous</button>`;
+        }
+
+        if(data.number < data.totalPages - 1){
+            html += `<button class="px-3 py-1 border rounded hover:bg-gray-100"
+                        onclick="produceData(${data.number + 1})">Next</button>`;
+        }
+
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    function showData(data){
+        let container = document.getElementById("task-items-group");
+
+        if(data.length === 0){
+            container.innerHTML = `<div class="py-3 text-sm text-gray-500">No tasks found</div>`;
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(task =>{
+            html += `
+            <div class="task-item flex flex-col md:grid md:grid-cols-6 gap-2 md:gap-0 py-3 border-b text-sm">
+                <div><span class="md:hidden font-medium">Task:</span> ${task.taskTitle}</div>
+                <div><span class="md:hidden font-medium">Assigned:</span> ${task.user ? task.user.fullName : 'Unassigned'}</div>
+                <div><span class="md:hidden font-medium">Deadline:</span> ${task.deadline}</div>
+                <div><span class="md:hidden font-medium">Priority:</span> ${task.priority}</div>
+                <div><span class="md:hidden font-medium">Status:</span> ${task.status}</div>
+                <div class="view flex flex-wrap gap-2">
+                    <a href="/admin/task/${task.id}/view" class="px-2 py-1 border rounded hover:bg-gray-100">View</a>
+                    <a href="/admin/task/${task.id}/editPage" class="px-2 py-1 border rounded hover:bg-gray-100">Edit</a>
+                    <button onclick="deleteTask(${task.id})" class="px-2 py-1 border rounded hover:bg-gray-100">Delete</button>
+                    <a href="/admin/task/${task.id}/reassignPage" class="px-2 py-1 border rounded hover:bg-gray-100">Reassign</a>
+                </div>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function deleteTask(taskId){
+
+        Swal.fire({
+            title: 'Delete Task?',
+            text: 'This action cannot be undone',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Delete',
+            reverseButtons: true
+        }).then((result) => {
+
+            if(result.isConfirmed){
+
+                fetch(`/admin/task/${taskId}/delete`, {
+                    method : "POST"
+                })
+                .then(res => {
+                    if(!res.ok) throw new Error();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Task Deleted',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something went wrong'
+                    });
+                });
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

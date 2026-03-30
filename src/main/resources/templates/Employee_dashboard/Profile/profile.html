@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-100 via-white to-indigo-100 font-sans">
+
+<div class="app flex flex-col md:flex-row min-h-screen">
+
+    <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
+
+        <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+
+            <a th:href="@{/employee/employee_dashboard}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Dashboard
+            </a>
+
+            <a th:href="@{/employee/profile}"
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+                Profile
+            </a>
+
+            <a th:href="@{/employee/attendance}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Attendance
+            </a>
+
+            <a th:href="@{/employee/settings}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                Settings
+            </a>
+
+            <a th:href="@{/employee/tasks}"
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+                My Tasks <span th:text="${pendingTasks}">0</span>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="main-content flex-1 p-4 md:p-6">
+
+        <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+
+            <div>
+                <div class="welcome text-2xl md:text-3xl font-bold text-gray-800">
+                    My Profile
+                </div>
+                <div class="sub-welcome text-gray-500 text-sm">
+                    Manage your personal information
+                </div>
+            </div>
+
+            <a href="#" onclick="confirmLogout(event)"
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+                Logout
+            </a>
+        </div>
+
+        <div class="profile-card bg-white rounded-2xl shadow p-6 max-w-2xl">
+
+            <form th:action="@{/employee/profile/update}" method="post" id="profileForm">
+
+                <div class="form-group mb-4">
+                    <label class="block text-sm text-gray-500 mb-1">Name</label>
+                    <input type="text"
+                           id="name"
+                           name="fullName"
+                           th:value="${user.fullName}"
+                           maxlength="50"
+                           class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="block text-sm text-gray-500 mb-1">Email</label>
+                    <input type="email"
+                           th:value="${user.email}"
+                           readonly
+                           class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-sm cursor-not-allowed">
+                    <small class="text-xs text-gray-400">Email cannot be changed</small>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="block text-sm text-gray-500 mb-1">Username</label>
+                    <input type="text"
+                           th:value="${user.username}"
+                           readonly
+                           class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-sm cursor-not-allowed">
+                    <small class="text-xs text-gray-400">Username cannot be changed</small>
+                </div>
+
+                <div class="form-group mb-6">
+                    <label class="block text-sm text-gray-500 mb-1">Role</label>
+                    <input type="text"
+                           th:value="${user.role}"
+                           readonly
+                           class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-sm cursor-not-allowed">
+                    <small class="text-xs text-gray-400">Role cannot be changed</small>
+                </div>
+
+                <div class="form-actions flex flex-col sm:flex-row gap-3">
+
+                    <button type="submit"
+                            class="save-btn w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+                        Save Changes
+                    </button>
+
+                    <button type="button"
+                            class="cancel-btn w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition"
+                            onclick="location.reload()">
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+    <script>
+
+        const toastColors = {
+            success: "#22c55e",
+            error: "#ef4444",
+            info: "#3b82f6"
+        };
+
+        function showToast(message, type = "success") {
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: toastColors[type] || toastColors.error,
+                close: true,
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        function confirmLogout(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: "Logout?",
+                text: "You will be signed out of your account.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#4f46e5",
+                cancelButtonColor: "#ef4444",
+                confirmButtonText: "Yes, logout",
+                cancelButtonText: "Stay here",
+                reverseButtons: true
+            })
+            .then(result => {
+                if (result.isConfirmed) {
+
+                    setTimeout(() => {
+                        window.location.href = "/employee/logout";
+                    }, 300);
+
+                } else {
+                    showToast("Logout cancelled", "info");
+                }
+            });
+        }
+
+        const form = document.getElementById("profileForm");
+        const nameInput = document.getElementById("name");
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            if (nameInput.value.trim().length < 5) {
+                showToast("Name should contain at least 5 letters", "error");
+                return;
+            }
+
+            Swal.fire({
+                title: "Save Changes?",
+                text: "Your profile information will be updated.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#4f46e5",
+                cancelButtonColor: "#ef4444",
+                confirmButtonText: "Yes, save it"
+            })
+
+            .then(result => {
+                if (result.isConfirmed) {
+                    form.submit();
+                } else {
+                    showToast("Changes discarded", "info");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

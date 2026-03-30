@@ -1,106 +1,3 @@
-//package com.company.ems.Service;
-//
-//import com.company.ems.Dto.Performance;
-//import com.company.ems.Entity.Attendance;
-//import com.company.ems.Repository.AttendanceRepository;
-//import com.company.ems.Repository.UserRepository;
-//import lombok.AllArgsConstructor;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.stereotype.Service;
-//import java.time.LocalDate;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//@Service
-//@AllArgsConstructor
-//public class AttendanceService {
-//    private final AttendanceRepository attendanceRepository;
-//    private final UserRepository userRepository;
-//
-//    public Page<Attendance> getPaginatedAttendance(int page, int size){
-//
-//        if(page < 0) page = 0;
-//
-//        List<Attendance> attendances = showAttendanceRecords();
-//
-//        int start = page * size;
-//        int end = Math.min(start + size, attendances.size());
-//
-//        List<Attendance> paginatedList;
-//
-//        if(start < attendances.size()){
-//            paginatedList = attendances.subList(start, end);
-//        } else {
-//            paginatedList = new ArrayList<>();
-//        }
-//
-//        return new PageImpl<>(paginatedList, PageRequest.of(page, size), attendances.size());
-//    }
-//    public List<Attendance> showAttendanceRecords(){
-//        return attendanceRepository.findAll();
-//    }
-//    public long totalEmployeesCount(){
-//        return userRepository.count();
-//    }
-//    public long presentCount(){
-//        return attendanceRepository.countByDateAndStatus(LocalDate.now(), "PRESENT");
-//    }
-//    public long absentCount(){
-//        return attendanceRepository.countByDateAndStatus(LocalDate.now(), "ABSENT");
-//    }
-//    public double showAttendancePercentage(){
-//        long present = attendanceRepository
-//                .countByDateAndStatus(LocalDate.now(), "PRESENT");
-//        long total = userRepository.count();
-//        if(total == 0) return 0;
-//        return (present * 100.0) / total;
-//    }
-//    public Page<Attendance> filterAttendanceWithPagination(String name,
-//                                                           Integer month,
-//                                                           Integer year,
-//                                                           String status,
-//                                                           int page,
-//                                                           int size){
-//        if(page < 0) page = 0;
-//
-//        List<Attendance> attendances = filterAttendance(name, month, year, status);
-//
-//        int start = page * size;
-//        int end = Math.min(start + size, attendances.size());
-//
-//        List<Attendance> paginatedList;
-//
-//        if(start < attendances.size()){
-//            paginatedList = attendances.subList(start, end);
-//        } else {
-//            paginatedList = new ArrayList<>();
-//        }
-//
-//        return new PageImpl<>(paginatedList, PageRequest.of(page, size), attendances.size());
-//    }
-//    public List<Attendance> filterAttendance(String name, Integer month, Integer year, String status){
-//        List<Attendance> attendance = attendanceRepository.findAll();
-//        if(name!=null && !name.trim().isEmpty())
-//            attendance = attendance.stream().filter(a -> a.getUser() != null &&
-//                                                         a.getUser().getFullName() != null &&
-//                                                         a.getUser().getFullName().toLowerCase().contains(name.trim().toLowerCase()))
-//                                                         .toList();
-//        if(month!=null){
-//            attendance = attendance.stream().filter(a -> a.getDate().getMonthValue()==month).toList();
-//        }
-//        if(year!=null){
-//            attendance = attendance.stream().filter(a -> a.getDate().getYear()==year).toList();
-//        }
-//        if(status!=null && !status.trim().isEmpty() && !status.equalsIgnoreCase("ALL")){
-//            attendance = attendance.stream().filter(a -> a.getStatus()!=null && a.getStatus().equalsIgnoreCase(status)).toList();
-//        }
-//        return attendance;
-//    }
-//}
-
-
 package com.company.ems.Service.Admin;
 
 import com.company.ems.Entity.Attendance;
@@ -171,7 +68,6 @@ public class AttendanceService {
                 continue;
             }
 
-            // Step 1: Fetch attendance (1 DB call per user)
             List<Attendance> userAttendance =
                     attendanceRepository.findAllByUser_IdAndDateBetween(
                             user.getId(),
@@ -179,7 +75,6 @@ public class AttendanceService {
                             endDate
                     );
 
-            // Step 2: Convert to Map
             Map<LocalDate, Attendance> attendanceMap =
                     userAttendance.stream()
                             .collect(Collectors.toMap(
@@ -188,7 +83,6 @@ public class AttendanceService {
                                     (a1, a2) -> a1
                             ));
 
-            // Step 3: Loop through dates
             for(LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)){
 
                 if(attendanceMap.containsKey(date)){
@@ -204,7 +98,6 @@ public class AttendanceService {
             }
         }
 
-        // Optional: sort final list
         finalAttendanceList.sort(
                 Comparator.comparing(Attendance::getDate).reversed()
         );
@@ -298,7 +191,6 @@ public class AttendanceService {
 
         List<Attendance> attendance = showAttendanceRecords();
 
-        // Normalize search (BEST PRACTICE 🔥)
         if (name != null) {
             name = name.trim().toLowerCase();
         }

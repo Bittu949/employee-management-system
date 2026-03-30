@@ -31,7 +31,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ✅ 1. Skip filter for login and static resources
         String path = request.getRequestURI();
         if (path.equals("/login") || path.startsWith("/css") || path.startsWith("/js")) {
             filterChain.doFilter(request, response);
@@ -41,7 +40,6 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = null;
         String email = null;
 
-        // ✅ 2. Get JWT from cookies
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if (cookie.getName().equals("jwt")) {
@@ -53,19 +51,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
                         } catch (io.jsonwebtoken.ExpiredJwtException e) {
 
-                            // 🔥 Token expired → clear cookie
                             Cookie cookie2 = new Cookie("jwt", null);
                             cookie2.setMaxAge(0);
                             cookie2.setPath("/");
                             response.addCookie(cookie2);
 
-                            // 🔥 Redirect to login
                             response.sendRedirect("/login?expired=true");
                             return;
 
                         } catch (Exception e) {
 
-                            // 🔥 Invalid token → clear cookie
                             Cookie cookie2 = new Cookie("jwt", null);
                             cookie2.setMaxAge(0);
                             cookie2.setPath("/");
@@ -80,7 +75,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // ✅ 3. Authenticate user if email exists
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -102,7 +96,6 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // ✅ 4. Continue filter chain
         filterChain.doFilter(request, response);
     }
 }

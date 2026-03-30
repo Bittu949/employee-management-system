@@ -9,13 +9,10 @@ import org.springframework.stereotype.Component;
 
 //@Component
 public class AdminInitializer implements CommandLineRunner {
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     PasswordEncoder passwordEncoder;
-
     @Override
     public void run(String... args) {
 

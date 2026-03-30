@@ -94,7 +94,6 @@ public class EmployeeAttendanceService {
 
         attendance.setCheckOutTime(checkOutTime);
 
-        // calculate working hours
         Duration duration = Duration.between(attendance.getCheckInTime(), checkOutTime);
         long hours = duration.toHours();
         long minutes = duration.toMinutes() % 60;
@@ -112,7 +111,6 @@ public class EmployeeAttendanceService {
 
         List<Attendance> list = getAttendanceHistory(userId, joiningDate);
 
-        // Filter by status
         if(status != null && !status.trim().isEmpty()){
             list = list.stream()
                     .filter(a -> a.getStatus() != null &&
@@ -120,7 +118,6 @@ public class EmployeeAttendanceService {
                     .toList();
         }
 
-        // Filter by month
         if(month != null){
             list = list.stream()
                     .filter(a -> a.getDate() != null &&
@@ -128,7 +125,6 @@ public class EmployeeAttendanceService {
                     .toList();
         }
 
-        // Filter by year
         if(year != null){
             list = list.stream()
                     .filter(a -> a.getDate() != null &&

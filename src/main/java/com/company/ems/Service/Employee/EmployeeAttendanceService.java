@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeAttendanceService {
@@ -30,22 +32,16 @@ public class EmployeeAttendanceService {
 
         LocalDate today = LocalDate.now();
         List<Attendance> records = attendanceRepository.findAllByUser_Id(userId);
-
         if (joiningDate == null) {
             return new ArrayList<>();
         }
+        Map<LocalDate, Attendance> attendanceMap = records.stream()
+                .collect(Collectors.toMap(Attendance::getDate, a -> a));
         List<Attendance> finalList = new ArrayList<>();
-
         for (LocalDate date = joiningDate; !date.isAfter(today); date = date.plusDays(1)) {
-            Attendance found = null;
-            for (Attendance a : records) {
-                if (a.getDate().equals(date)) {
-                    found = a;
-                    break;
-                }
-            }
-
+            Attendance found = attendanceMap.get(date);
             if (found != null) {
+                handleMissedCheckout(found, today);
                 finalList.add(found);
             } else {
                 Attendance absent = new Attendance();
@@ -55,10 +51,31 @@ public class EmployeeAttendanceService {
                 finalList.add(absent);
             }
         }
-
-        return finalList.stream().sorted((a,b)->
-                b.getDate().compareTo(a.getDate())).toList();
+        return finalList.stream()
+                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+                .toList();
     }
+
+    private void handleMissedCheckout(Attendance attendance, LocalDate today) {
+
+        if (attendance.getCheckInTime() != null &&
+                attendance.getCheckOutTime() == null &&
+                !attendance.getDate().equals(today)) {
+            LocalTime autoCheckout = LocalTime.of(23, 59);
+            attendance.setCheckOutTime(autoCheckout);
+            Duration duration = Duration.between(
+                    attendance.getCheckInTime(),
+                    autoCheckout
+            );
+            long hours = duration.toHours();
+            long minutes = duration.toMinutes() % 60;
+            attendance.setStatus("Present");
+            String working = hours + " hrs " + minutes + " min (Auto Closed)";
+            attendance.setWorkingHours(working);
+            attendanceRepository.save(attendance);
+        }
+    }
+
     public void checkIn(long userId, User user) {
 
         LocalDate today = LocalDate.now();

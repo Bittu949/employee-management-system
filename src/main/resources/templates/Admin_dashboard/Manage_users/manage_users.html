@@ -99,6 +99,11 @@
             </div>
 
             <div class="task-items-group" id="table-data">
+                <div th:if="${users == null or #lists.isEmpty(users)}"
+                     class="py-6 text-center text-gray-500">
+                    <div class="text-lg font-medium">No users found</div>
+                    <div class="text-sm">Try changing filters</div>
+                </div>
 
                 <div th:each="user : ${users}"
                      class="task-item flex flex-col md:grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm"
@@ -160,11 +165,6 @@
         <div class="pagination-section mt-6 flex flex-col sm:flex-row justify-between items-center gap-3 bg-white p-4 rounded-xl shadow">
 
             <div class="label text-sm text-gray-500"
-                 th:if="${totalPages == 0}">
-                No data found !
-            </div>
-
-            <div class="label text-sm text-gray-500"
                  th:if="${totalPages > 0}"
                  th:text="'Page ' + (${currentPage + 1}) + ' of ' + ${totalPages}">
             </div>
@@ -223,10 +223,10 @@
         let container = document.querySelector(".pagination-section");
         let html = "";
 
-        if(data.totalPages === 0){
-            html += `<div class="label text-sm text-gray-500">No data found !</div>`;
-        } else {
-            html += `<div class="label text-sm text-gray-500">Page ${data.number + 1} of ${data.totalPages}</div>`;
+        if(data.totalPages > 0){
+            html += `<div class="label text-sm text-gray-500">
+                        Page ${data.number + 1} of ${data.totalPages}
+                     </div>`;
         }
 
         html += `<div class="pagination-btn flex gap-2">`;
@@ -248,7 +248,18 @@
 
     function display(data){
         let displayContainer = document.getElementById("table-data");
-        displayContainer.innerHTML = "";
+
+        if(data.length === 0){
+            displayContainer.innerHTML = `
+                <div class="py-6 text-center text-gray-500">
+                    <div class="text-lg font-medium">No users found</div>
+                    <div class="text-sm">Try changing filters</div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = "";
 
         data.forEach(user => {
             let actionButton = "";
@@ -271,12 +282,12 @@
                 ? "task-item flex flex-col md:grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm bg-red-50 opacity-70"
                 : "task-item flex flex-col md:grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm";
 
-            displayContainer.innerHTML +=
-            `<div class="${rowClass}">
-                <div class="task-title"><span class="md:hidden font-medium">Name:</span> ${user.fullName}</div>
-                <div class="assigned-to"><span class="md:hidden font-medium">Email:</span> ${user.email}</div>
-                <div class="deadline"><span class="md:hidden font-medium">Role:</span> ${user.role}</div>
-                <div class="status"><span class="md:hidden font-medium">Status:</span> ${user.status}</div>
+            html += `
+            <div class="${rowClass}">
+                <div><span class="md:hidden font-medium">Name:</span> ${user.fullName}</div>
+                <div><span class="md:hidden font-medium">Email:</span> ${user.email}</div>
+                <div><span class="md:hidden font-medium">Role:</span> ${user.role}</div>
+                <div><span class="md:hidden font-medium">Status:</span> ${user.status}</div>
 
                 <div class="view actions flex flex-wrap gap-2">
                     <a href="/admin/user/${user.id}/editPage"
@@ -286,6 +297,8 @@
                 </div>
             </div>`;
         });
+
+        displayContainer.innerHTML = html;
     }
 
     function activateUser(userId){

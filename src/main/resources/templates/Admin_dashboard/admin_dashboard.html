@@ -84,22 +84,34 @@
         <div class="summary-cards-row1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Total Tasks</div>
+                <div class="label text-sm text-gray-500">
+                    Total Tasks
+                    <div class="text-xs text-gray-400">(Overall)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalTasks}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Completed</div>
+                <div class="label text-sm text-gray-500">
+                    Completed
+                    <div class="text-xs text-gray-400">(Overall)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${completedTasks}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Pending</div>
+                <div class="label text-sm text-gray-500">
+                    Pending
+                    <div class="text-xs text-gray-400">(Overall)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${pendingTasks}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Today's Attendance %</div>
+                <div class="label text-sm text-gray-500">
+                    Attendance %
+                    <div class="text-xs text-gray-400">(Today)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${todaysAttendancePercentage + ' %'}"></div>
             </div>
 
@@ -108,12 +120,18 @@
         <div class="summary-cards-row2 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Total Employees</div>
+                <div class="label text-sm text-gray-500">
+                    Total Employees
+                    <div class="text-xs text-gray-400">(Active only)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalEmployee}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Tasks Due This Week</div>
+                <div class="label text-sm text-gray-500">
+                    Tasks Due
+                    <div class="text-xs text-gray-400">(This Week)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${tasksDueThisWeek}"></div>
             </div>
 
@@ -210,17 +228,26 @@
             <div class="attendance-overview-items grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 
                 <div class="overview-item p-4 rounded-xl bg-gray-50">
-                    <div class="overview-title text-sm text-gray-500">Present Count</div>
+                    <div class="overview-title text-sm text-gray-500">
+                        Present Count
+                        <div class="text-xs text-gray-400">(Today)</div>
+                    </div>
                     <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${presentCount}"></div>
                 </div>
 
                 <div class="overview-item p-4 rounded-xl bg-gray-50">
-                    <div class="overview-title text-sm text-gray-500">Absent Count</div>
+                    <div class="overview-title text-sm text-gray-500">
+                        Absent Count
+                        <div class="text-xs text-gray-400">(Today)</div>
+                    </div>
                     <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${absentCount}"></div>
                 </div>
 
                 <div class="overview-item p-4 rounded-xl bg-gray-50">
-                    <div class="overview-title text-sm text-gray-500">Attendance % Today</div>
+                    <div class="overview-title text-sm text-gray-500">
+                        Attendance %
+                        <div class="text-xs text-gray-400">(Today)</div>
+                    </div>
                     <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${attendancePercentageToday + ' %'}"></div>
                 </div>
 

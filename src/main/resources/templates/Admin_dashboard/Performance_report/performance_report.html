@@ -110,17 +110,26 @@
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Tasks Completed</div>
+                <div class="label text-sm text-gray-500">
+                    Tasks Completed
+                    <div class="text-xs text-gray-400">(Overall)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalCompletedTasks}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Tasks Pending</div>
+                <div class="label text-sm text-gray-500">
+                    Tasks Pending
+                    <div class="text-xs text-gray-400">(Overall)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalPendingTasks}"></div>
             </div>
 
             <div class="smry-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
-                <div class="label text-sm text-gray-500">Task Completion %</div>
+                <div class="label text-sm text-gray-500">
+                    Task Completion %
+                    <div class="text-xs text-gray-400">(Overall)</div>
+                </div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${averageCompletionRate + ' %'}"></div>
             </div>
 

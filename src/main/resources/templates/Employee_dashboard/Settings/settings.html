@@ -9,12 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        .toastify .toast-close {
-            color: black !important;
-            opacity: 1 !important;
-        }
-    </style>
+
     <script>
         tailwind.config = {
             theme: {
@@ -32,38 +27,40 @@
 
 <div class="app flex flex-col md:flex-row min-h-screen">
 
+    <!-- Sidebar -->
     <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
 
         <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
 
             <a th:href="@{/employee/employee_dashboard}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Dashboard
             </a>
 
             <a th:href="@{/employee/profile}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Profile
             </a>
 
             <a th:href="@{/employee/attendance}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Attendance
             </a>
 
             <a th:href="@{/employee/settings}"
-               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100 cursor-pointer">
                 Settings
             </a>
 
             <a th:href="@{/employee/tasks}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 My Tasks <span th:text="${pendingTasks}">0</span>
             </a>
 
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content flex-1 p-4 md:p-6">
 
         <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
@@ -78,51 +75,51 @@
             </div>
 
             <a href="#" onclick="confirmLogout(event)"
-               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm cursor-pointer">
                 Logout
             </a>
         </div>
 
-        <div class="settings-card bg-white rounded-2xl shadow p-6 max-w-xl">
+        <!-- Settings Card -->
+        <div class="settings-card bg-white rounded-2xl shadow border border-gray-100 p-6 max-w-xl">
 
             <div class="section-title font-semibold text-lg mb-5">
                 Change Password
             </div>
 
-            <div class="form-group mb-4">
-                <label class="block text-sm text-gray-500 mb-1">
-                    Current Password
-                </label>
-                <input type="password" id="currentPassword"
-                       class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
+            <div class="space-y-4">
+
+                <div>
+                    <label class="block text-sm text-gray-500 mb-1">Current Password</label>
+                    <input type="password" id="currentPassword"
+                           class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm text-gray-500 mb-1">New Password</label>
+                    <input type="password" id="newPassword"
+                           class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm text-gray-500 mb-1">Confirm Password</label>
+                    <input type="password" id="confirmPassword"
+                           class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
+                </div>
+
             </div>
 
-            <div class="form-group mb-4">
-                <label class="block text-sm text-gray-500 mb-1">
-                    New Password
-                </label>
-                <input type="password" id="newPassword"
-                       class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
-            </div>
-
-            <div class="form-group mb-6">
-                <label class="block text-sm text-gray-500 mb-1">
-                    Confirm Password
-                </label>
-                <input type="password" id="confirmPassword"
-                       class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
-            </div>
-
-            <div class="form-actions flex flex-col sm:flex-row gap-3">
+            <!-- Buttons -->
+            <div class="form-actions flex flex-col sm:flex-row gap-3 mt-6">
 
                 <button type="button"
-                        class="save-btn w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                        class="save-btn w-full sm:w-auto px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md transition-all cursor-pointer"
                         onclick="updatePassword()">
                     Update Password
                 </button>
 
                 <button type="button"
-                        class="cancel-btn w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition"
+                        class="cancel-btn w-full sm:w-auto px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm cursor-pointer"
                         onclick="clearFields()">
                     Cancel
                 </button>
@@ -137,7 +134,7 @@
 <script>
 
     function showToast(message, success = true) {
-        const toast = Toastify({
+        Toastify({
             text: message,
             duration: 3000,
             gravity: "top",
@@ -145,9 +142,7 @@
             backgroundColor: success ? "#22c55e" : "#ef4444",
             stopOnFocus: true,
             close: true
-        });
-
-        toast.showToast();
+        }).showToast();
     }
 
     function confirmLogout(e) {
@@ -166,12 +161,9 @@
         })
         .then(result => {
             if (result.isConfirmed) {
-
-                // smooth redirect
                 setTimeout(() => {
                     window.location.href = "/employee/logout";
                 }, 300);
-
             } else {
                 showToast("Logout cancelled", false);
             }
@@ -208,7 +200,6 @@
             cancelButtonColor: "#ef4444",
             confirmButtonText: "Yes, update"
         })
-
         .then(result => {
 
             if (result.isConfirmed) {

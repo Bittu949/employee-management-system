@@ -52,7 +52,7 @@
             </a>
 
             <a th:href="@{/employee/tasks}"
-               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100">
                 My Tasks <span th:text="${pendingTasks}">0</span>
             </a>
 
@@ -80,30 +80,30 @@
 
         <div class="summary-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Total Tasks</div>
                 <div class="value text-xl font-bold mt-2" th:text="${totalTasks}">0</div>
             </div>
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Completed</div>
                 <div class="value text-xl font-bold mt-2" th:text="${completedTasks}">0</div>
             </div>
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Pending</div>
                 <div class="value text-xl font-bold mt-2" th:text="${pendingTasks}">0</div>
             </div>
 
         </div>
 
-        <div class="filter-section mt-6 bg-white rounded-2xl shadow p-5">
+        <div class="filter-section mt-6 bg-white rounded-2xl shadow border border-gray-100 p-5">
 
             <div class="flex flex-col md:flex-row gap-4">
 
                 <input type="text" id="search"
                        placeholder="Search task..."
-                       class="flex-1 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
+                       class="flex-1 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none">
 
                 <select id="status"
                         class="md:w-40 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary">
@@ -125,7 +125,7 @@
 
         </div>
 
-        <div class="task-list mt-6 bg-white rounded-2xl shadow p-4 overflow-x-auto">
+        <div class="task-list mt-6 bg-white rounded-2xl shadow border border-gray-100 p-4 overflow-x-auto">
 
             <div class="section-title font-semibold text-lg mb-3">Assigned Tasks</div>
 
@@ -141,11 +141,11 @@
 
                 <div th:if="${tasks == null || tasks.isEmpty()}"
                      class="task-row py-3 text-sm text-gray-500">
-                    No tasks available
+                    <span class="text-gray-400 italic">No tasks available</span>
                 </div>
 
                 <div th:each="task : ${tasks}"
-                     class="task-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm">
+                     class="task-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm hover:bg-gray-50 transition">
 
                     <div>
                         <span class="md:hidden font-medium">Task:</span>
@@ -158,21 +158,25 @@
                     </div>
 
                     <div class="priority">
-                        <span th:text="${task.priority}">Priority</span>
+                        <span th:text="${task.priority}"
+                              class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 font-medium">
+                        </span>
                     </div>
 
                     <div class="status">
-                        <span th:text="${task.status}">Status</span>
+                        <span th:text="${task.status}"
+                              class="px-2 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700 font-medium">
+                        </span>
                     </div>
 
                     <div class="actions flex flex-wrap gap-2">
 
                         <a th:href="@{'/employee/task/' + ${task.id}}"
-                           class="view-btn px-2 py-1 border rounded hover:bg-gray-100">
+                           class="view-btn px-3 py-1 border rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
                             View
                         </a>
 
-                        <select class="status-select px-2 py-1 border rounded"
+                        <select class="status-select px-2 py-1 border rounded-lg text-sm focus:ring-2 focus:ring-primary cursor-pointer"
                                 th:data-id="${task.id}">
 
                             <option value="PENDING" th:selected="${task.status == 'PENDING'}">Pending</option>
@@ -273,16 +277,16 @@
         } else {
             data.forEach(task => {
                 html += `
-                <div class="task-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm">
+                <div class="task-row grid md:grid-cols-5 gap-2 md:gap-0 py-3 border-b text-sm hover:bg-gray-50 transition">
                     <div>${task.taskTitle || ''}</div>
                     <div>${task.deadline || ''}</div>
                     <div>${task.priority || ''}</div>
                     <div>${task.status || ''}</div>
 
                     <div class="flex flex-wrap gap-2">
-                        <a href="/employee/task/${task.id}" class="px-2 py-1 border rounded hover:bg-gray-100">View</a>
+                        <a href="/employee/task/${task.id}" class="px-3 py-1 border rounded-lg hover:bg-gray-100 transition-all cursor-pointer">View</a>
 
-                        <select class="status-select px-2 py-1 border rounded" data-id="${task.id}">
+                        <select class="status-select px-2 py-1 border rounded-lg text-sm focus:ring-2 focus:ring-primary cursor-pointer" data-id="${task.id}">
                             <option value="PENDING" ${task.status === 'PENDING' ? 'selected' : ''}>Pending</option>
                             <option value="IN_PROGRESS" ${task.status === 'IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
                             <option value="COMPLETED" ${task.status === 'COMPLETED' ? 'selected' : ''}>Completed</option>

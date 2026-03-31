@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 
-    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -23,47 +23,113 @@
             }
         }
     </script>
+
+    <!-- 🌊 PREMIUM BACKGROUND ANIMATION -->
+    <style>
+        body {
+            background: linear-gradient(120deg, #eef2ff, #f8fafc, #e0e7ff);
+            background-size: 300% 300%;
+            animation: gradientMove 12s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating soft light layers */
+        .bg-layer {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            animation: float 18s infinite ease-in-out;
+        }
+
+        .layer1 {
+            background: #6366f1;
+            top: -150px;
+            left: -150px;
+        }
+
+        .layer2 {
+            background: #a855f7;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        .layer3 {
+            background: #22d3ee;
+            top: 40%;
+            left: 30%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, -60px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Card animation */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+
 </head>
 
-<body class="relative min-h-screen flex items-center justify-center font-sans bg-gradient-to-br from-slate-100 via-white to-indigo-200 overflow-hidden">
+<body class="relative min-h-screen flex items-center justify-center overflow-hidden font-sans">
 
-<div class="absolute w-96 h-96 bg-indigo-400 opacity-20 blur-3xl rounded-full -top-20 -left-20"></div>
-<div class="absolute w-96 h-96 bg-purple-400 opacity-20 blur-3xl rounded-full bottom-0 right-0"></div>
+<!-- 🌊 PREMIUM BACKGROUND -->
+<div class="bg-layer layer1"></div>
+<div class="bg-layer layer2"></div>
+<div class="bg-layer layer3"></div>
 
-<div class="login-box relative w-full max-w-md p-8 rounded-3xl
-                bg-white/70 backdrop-blur-xl
-                border border-white/40
-                shadow-[0_20px_60px_rgba(0,0,0,0.15)]
-                transition duration-300 hover:shadow-[0_25px_80px_rgba(0,0,0,0.2)]">
+<!-- 💎 GLASS CARD -->
+<div class="relative z-10 w-full max-w-md p-8 rounded-3xl
+            bg-white/70 backdrop-blur-2xl
+            border border-white/30
+            shadow-[0_25px_80px_rgba(0,0,0,0.15)]
+            fade-in">
 
-    <div class="login-title text-center text-3xl font-bold text-gray-800 mb-6 tracking-tight">
-        Welcome Back
+    <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 tracking-tight">
+            Welcome Back
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+            Login to continue to your dashboard
+        </p>
     </div>
 
-    <form onsubmit="login(event)" class="space-y-6" novalidate>
+    <form onsubmit="login(event)" class="space-y-5" novalidate>
 
-        <div class="input-group relative">
-            <input type="text" id="username" placeholder="Enter email" required
-                   class="w-full px-4 py-3 rounded-xl border border-gray-300
-                              bg-white/60 backdrop-blur-sm
-                              focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-                              transition duration-200 shadow-sm focus:shadow-md">
-        </div>
+        <input type="text" id="username" placeholder="Enter email" required
+               class="w-full px-4 py-3 rounded-xl border border-gray-300
+                      bg-white/60 backdrop-blur-sm
+                      focus:outline-none focus:ring-2 focus:ring-primary
+                      transition shadow-sm focus:shadow-md">
 
-        <div class="input-group relative">
-            <input type="password" id="password" placeholder="Enter password" required
-                   class="w-full px-4 py-3 rounded-xl border border-gray-300
-                              bg-white/60 backdrop-blur-sm
-                              focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-                              transition duration-200 shadow-sm focus:shadow-md">
-        </div>
+        <input type="password" id="password" placeholder="Enter password" required
+               class="w-full px-4 py-3 rounded-xl border border-gray-300
+                      bg-white/60 backdrop-blur-sm
+                      focus:outline-none focus:ring-2 focus:ring-primary
+                      transition shadow-sm focus:shadow-md">
 
         <button type="submit"
                 class="w-full py-3 rounded-xl font-semibold text-white
-                           bg-gradient-to-r from-indigo-500 to-purple-500
-                           hover:from-indigo-600 hover:to-purple-600
-                           transition duration-200 transform hover:scale-[1.02] active:scale-95
-                           shadow-lg hover:shadow-xl">
+                       bg-indigo-600 hover:bg-indigo-700
+                       shadow-md hover:shadow-lg
+                       transition-all transform hover:scale-[1.04] active:scale-95 cursor-pointer">
             Login
         </button>
     </form>
@@ -71,7 +137,6 @@
 </div>
 
 <script>
-
     const toastColors = {
         success: "#22c55e",
         error: "#ef4444",
@@ -89,7 +154,6 @@
         }).showToast();
     }
 
-    // ✅ 🔥 HANDLE SESSION EXPIRED / ERROR FROM URL
     window.onload = function () {
         const params = new URLSearchParams(window.location.search);
 
@@ -125,17 +189,11 @@
         try {
             let response = await fetch("/auth/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
             });
 
             if(response.ok){
-
                 let userRes = await fetch("/auth/me");
                 let data = await userRes.json();
 

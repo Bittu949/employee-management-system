@@ -27,40 +27,43 @@
 
 <div class="app flex flex-col md:flex-row min-h-screen">
 
+    <!-- Sidebar -->
     <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
 
         <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
 
             <a th:href="@{/employee/employee_dashboard}"
-               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100 cursor-pointer">
                 Dashboard
             </a>
 
             <a th:href="@{/employee/profile}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Profile
             </a>
 
             <a th:href="@{/employee/attendance}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Attendance
             </a>
 
             <a th:href="@{/employee/settings}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Settings
             </a>
 
             <a th:href="@{/employee/tasks}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 My Tasks <span th:text="${pendingTasks}">0</span>
             </a>
 
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content flex-1 p-4 md:p-6">
 
+        <!-- Header -->
         <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
 
             <div>
@@ -73,83 +76,87 @@
             </div>
 
             <a href="#" onclick="confirmLogout(event)"
-               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm cursor-pointer">
                 Logout
             </a>
         </div>
 
+        <!-- Summary Cards -->
         <div class="summary-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Total Tasks</div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${totalTasks}">0</div>
             </div>
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Completed</div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${completedTasks}">0</div>
             </div>
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Pending</div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${pendingTasks}">0</div>
             </div>
 
-            <div class="stat-card p-4 rounded-2xl bg-white shadow hover:shadow-lg transition">
+            <div class="stat-card p-4 rounded-2xl bg-white shadow border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Attendance %</div>
                 <div class="value text-xl md:text-2xl font-bold mt-2" th:text="${attendancePercentage} + '%'">0%</div>
             </div>
 
         </div>
 
-        <div class="attendance-overview mt-6 bg-white rounded-2xl shadow p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Attendance Overview -->
+        <div class="attendance-overview mt-6 bg-white rounded-2xl shadow border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
 
-            <div class="attendance-item p-4 rounded-xl bg-gray-50">
+            <div class="attendance-item p-4 rounded-xl bg-gray-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Check-in Time</div>
                 <div class="value text-lg font-semibold mt-2"
                      th:if="${todayAttendance != null and todayAttendance.checkInTime != null}"
-                     th:text="${todayAttendance.checkInTime}">
-                </div>
-                <div class="value text-lg font-semibold mt-2"
+                     th:text="${todayAttendance.checkInTime}"></div>
+                <div class="value text-lg font-semibold mt-2 text-gray-400 italic"
                      th:if="${todayAttendance == null or todayAttendance.checkInTime == null}">
                     --:--
                 </div>
             </div>
 
-            <div class="attendance-item p-4 rounded-xl bg-gray-50">
+            <div class="attendance-item p-4 rounded-xl bg-gray-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Check-out Time</div>
                 <div class="value text-lg font-semibold mt-2"
                      th:if="${todayAttendance != null and todayAttendance.checkOutTime != null}"
-                     th:text="${todayAttendance.checkOutTime}">
-                </div>
-                <div class="value text-lg font-semibold mt-2"
+                     th:text="${todayAttendance.checkOutTime}"></div>
+                <div class="value text-lg font-semibold mt-2 text-gray-400 italic"
                      th:if="${todayAttendance == null or todayAttendance.checkOutTime == null}">
                     --:--
                 </div>
             </div>
 
-            <div class="attendance-item p-4 rounded-xl bg-gray-50">
+            <div class="attendance-item p-4 rounded-xl bg-gray-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                 <div class="label text-sm text-gray-500">Status</div>
-                <div class="value mt-2 font-semibold text-red-500"
-                     th:if="${todayAttendance == null}">
-                    Not Marked
+
+                <div th:if="${todayAttendance == null}" class="mt-2">
+                    <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-600">
+                        Not Marked
+                    </span>
                 </div>
-                <div class="value mt-2 font-semibold text-green-600"
-                     th:if="${todayAttendance != null}"
-                     th:text="${todayAttendance.status}">
+
+                <div th:if="${todayAttendance != null}" class="mt-2">
+                    <span th:text="${todayAttendance.status}"
+                          class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                    </span>
                 </div>
             </div>
 
             <div class="attendance-actions flex flex-col justify-center gap-2">
 
                 <button th:if="${todayAttendance == null}"
-                        class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                        class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md transition-all cursor-pointer"
                         onclick="checkIn()">
                     Check-In
                 </button>
 
                 <button th:if="${todayAttendance != null and todayAttendance.checkOutTime == null}"
-                        class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                        class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md transition-all cursor-pointer"
                         onclick="checkOut()">
                     Check-Out
                 </button>
@@ -164,25 +171,26 @@
 
         </div>
 
-        <div class="tasks-section mt-6 bg-white rounded-2xl shadow p-4">
+        <!-- Recent Tasks -->
+        <div class="tasks-section mt-6 bg-white rounded-2xl shadow border border-gray-100 p-4">
 
             <div class="section-title font-semibold text-lg mb-3">Recent Tasks</div>
 
-            <div class="hidden md:grid grid-cols-3 text-xs text-gray-500 uppercase font-semibold border-b pb-2">
+            <div class="hidden md:grid grid-cols-3 text-xs text-gray-400 uppercase font-semibold border-b pb-2">
                 <div>Task Title</div>
                 <div>Due Date</div>
                 <div>Status</div>
             </div>
 
-            <div class="all-items">
+            <div>
 
                 <div th:if="${recentTasks == null or recentTasks.isEmpty()}"
-                     class="task-item py-3 text-sm text-gray-500">
-                    No tasks available
+                     class="py-3 text-sm">
+                    <span class="text-gray-400 italic">No tasks available</span>
                 </div>
 
                 <div th:each="task : ${recentTasks}"
-                     class="task-item grid md:grid-cols-3 gap-2 md:gap-0 py-3 border-b text-sm">
+                     class="grid md:grid-cols-3 gap-2 md:gap-0 py-3 border-b text-sm hover:bg-gray-50 transition">
 
                     <div>
                         <span class="md:hidden font-medium">Task:</span>
@@ -196,7 +204,9 @@
 
                     <div>
                         <span class="md:hidden font-medium">Status:</span>
-                        <span th:text="${task.status}">Pending</span>
+                        <span th:text="${task.status}"
+                              class="px-2 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700 font-medium">
+                        </span>
                     </div>
 
                 </div>

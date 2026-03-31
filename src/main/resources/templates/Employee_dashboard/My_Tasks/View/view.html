@@ -27,38 +27,40 @@
 
 <div class="app flex flex-col md:flex-row min-h-screen">
 
+    <!-- Sidebar -->
     <div class="sidebar w-full md:w-64 bg-white/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-gray-200 p-4 md:p-5 shadow-sm md:shadow-lg">
 
         <div class="menu mt-2 md:mt-10 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
 
             <a th:href="@{/employee/dashboard}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Dashboard
             </a>
 
             <a th:href="@{/employee/profile}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Profile
             </a>
 
             <a th:href="@{/employee/attendance}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Attendance
             </a>
 
             <a th:href="@{/employee/settings}"
-               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+               class="menu-item menu-link whitespace-nowrap px-4 py-2 rounded-xl hover:bg-gray-100 transition cursor-pointer">
                 Settings
             </a>
 
             <a th:href="@{/employee/tasks}"
-               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 font-medium">
+               class="menu-item active menu-link whitespace-nowrap px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100 cursor-pointer">
                 My Tasks <span th:text="${pendingTasks}">0</span>
             </a>
 
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content flex-1 p-4 md:p-6">
 
         <div class="dashboard-header flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
@@ -73,12 +75,13 @@
             </div>
 
             <a href="#" onclick="confirmLogout(event)"
-               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm">
+               class="logout-btn menu-link w-full sm:w-auto text-center px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm cursor-pointer">
                 Logout
             </a>
         </div>
 
-        <div class="task-card bg-white rounded-2xl shadow p-6 max-w-3xl">
+        <!-- Task Card -->
+        <div class="task-card bg-white rounded-2xl shadow border border-gray-100 p-6 max-w-3xl">
 
             <div class="section-title font-semibold text-lg mb-5">
                 Task Information
@@ -86,35 +89,41 @@
 
             <div class="task-info space-y-4">
 
-                <div class="info-row">
+                <div>
                     <div class="text-sm text-gray-500">Task Title</div>
                     <div class="text-base font-medium mt-1" th:text="${task.taskTitle}">Title</div>
                 </div>
 
-                <div class="info-row">
+                <div>
                     <div class="text-sm text-gray-500">Description</div>
                     <div class="text-base mt-1" th:text="${task.description}">Description</div>
                 </div>
 
-                <div class="info-row">
+                <div>
                     <div class="text-sm text-gray-500">Deadline</div>
                     <div class="text-base mt-1" th:text="${task.deadline}">Date</div>
                 </div>
 
-                <div class="info-row">
+                <!-- Priority Badge -->
+                <div>
                     <div class="text-sm text-gray-500">Priority</div>
-                    <div class="text-base mt-1" th:text="${task.priority}">Priority</div>
+                    <div class="mt-1">
+                        <span th:text="${task.priority}"
+                              class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 font-medium">
+                        </span>
+                    </div>
                 </div>
 
-                <div class="info-row">
+                <div>
                     <div class="text-sm text-gray-500">Assigned Date</div>
                     <div class="text-base mt-1" th:text="${task.assignedAt}">Assigned</div>
                 </div>
 
-                <div class="info-row">
+                <!-- Status Dropdown -->
+                <div>
                     <div class="text-sm text-gray-500 mb-1">Status</div>
 
-                    <select class="status-select px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary"
+                    <select class="status-select px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary cursor-pointer outline-none"
                             id="statusSelect"
                             th:data-id="${task.id}">
 
@@ -128,15 +137,16 @@
 
             </div>
 
+            <!-- Buttons -->
             <div class="action-buttons flex flex-col sm:flex-row gap-3 mt-6">
 
-                <button class="update-btn px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                <button class="update-btn px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm hover:shadow-md transition-all cursor-pointer"
                         onclick="updateStatus()">
                     Update Status
                 </button>
 
                 <a th:href="@{/employee/tasks}"
-                   class="back-btn px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition text-center">
+                   class="back-btn px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm text-center cursor-pointer">
                     Back
                 </a>
 
@@ -210,7 +220,6 @@
                 })
                 .then(() => {
                     showToast("Status updated successfully", true);
-
                     setTimeout(() => location.reload(), 800);
                 })
                 .catch(() => {

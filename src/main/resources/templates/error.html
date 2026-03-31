@@ -5,37 +5,114 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- 🌊 PREMIUM ANIMATION -->
+    <style>
+        body {
+            background: linear-gradient(120deg, #eef2ff, #f8fafc, #e0e7ff);
+            background-size: 300% 300%;
+            animation: gradientMove 12s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Soft floating lights */
+        .bg-layer {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.35;
+            animation: float 18s infinite ease-in-out;
+        }
+
+        .layer1 {
+            background: #6366f1;
+            top: -150px;
+            left: -150px;
+        }
+
+        .layer2 {
+            background: #a855f7;
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(80px, -60px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Card animation */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+
 </head>
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center">
 
-<div class="bg-white shadow-xl rounded-2xl p-10 max-w-md w-full text-center">
+<body class="min-h-screen flex items-center justify-center font-sans relative overflow-hidden">
 
-    <h1 class="text-6xl font-bold text-red-500" th:text="${statusCode}">500</h1>
+<!-- 🌊 Background -->
+<div class="bg-layer layer1"></div>
+<div class="bg-layer layer2"></div>
 
+<!-- 💎 Card -->
+<div class="relative z-10 bg-white/70 backdrop-blur-2xl shadow-[0_25px_80px_rgba(0,0,0,0.15)]
+            rounded-3xl border border-white/30 p-10 max-w-md w-full text-center fade-in">
+
+    <!-- Error Code -->
+    <h1 class="text-7xl font-extrabold text-indigo-600 tracking-tight"
+        th:text="${statusCode}">
+        500
+    </h1>
+
+    <!-- Title -->
     <h2 class="mt-4 text-2xl font-semibold text-gray-800">
+
         <span th:if="${statusCode == 404}">Page Not Found</span>
         <span th:if="${statusCode == 403}">Access Denied</span>
         <span th:if="${statusCode == 401}">Unauthorized</span>
         <span th:if="${statusCode == 400}">Bad Request</span>
         <span th:if="${statusCode == 409}">Conflict</span>
         <span th:if="${statusCode == 500}">Server Error</span>
+
     </h2>
 
-    <p class="mt-3 text-gray-600 text-sm" th:text="${errorMessage}">
+    <!-- Message -->
+    <p class="mt-3 text-gray-600 text-sm leading-relaxed"
+       th:text="${errorMessage}">
         Something went wrong
     </p>
 
-    <div class="my-6 border-t"></div>
+    <!-- Divider -->
+    <div class="my-6 border-t border-gray-200"></div>
 
-    <div class="flex justify-center gap-3">
+    <!-- Buttons -->
+    <div class="flex justify-center gap-3 flex-wrap">
 
         <a th:href="@{/admin/admin_dashboard}"
-           class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+           class="px-5 py-2 rounded-lg bg-indigo-600 text-white
+                  hover:bg-indigo-700 shadow-md hover:shadow-lg
+                  transition-all duration-200 transform hover:scale-[1.05]">
             Dashboard
         </a>
 
         <a href="javascript:history.back()"
-           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+           class="px-5 py-2 rounded-lg border border-gray-300 bg-white/70
+                  hover:bg-gray-100 shadow-sm hover:shadow-md
+                  transition-all duration-200 transform hover:scale-[1.05]">
             Go Back
         </a>
 

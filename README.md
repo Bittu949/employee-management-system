@@ -171,24 +171,6 @@ http://localhost:8080
 
 ---
 
-## 👤 Default Admin Creation
-
-The system can automatically create an admin user using environment variables.
-
-### ⚠️ Enable AdminInitializer
-
-In `AdminInitializer.java`, uncomment:
-
-```java
-@Component
-```
-
-Run the application once → admin will be created.
-
-Then disable it again to prevent duplicate creation.
-
----
-
 ## 🔐 Security Features
 
 * JWT-based authentication

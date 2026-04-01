@@ -1,6 +1,7 @@
 package com.company.ems.Repository;
 
 import com.company.ems.Entity.Attendance;
+import com.company.ems.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

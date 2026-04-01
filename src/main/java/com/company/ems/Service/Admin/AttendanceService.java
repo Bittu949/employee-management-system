@@ -11,7 +11,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,63 +48,58 @@ public class AttendanceService {
 
     public List<Attendance> showAttendanceRecords() {
 
-        List<User> users = userRepository.findAllByRole("EMPLOYEE");
-        List<Attendance> finalAttendanceList = new ArrayList<>();
-
-        if (users.isEmpty()) {
-            return new ArrayList<>();
-        }
-
+        List<User> employees = userRepository.findAllByRoleAndStatus("EMPLOYEE", "ACTIVE");
+        List<Attendance> finalList = new ArrayList<>();
         LocalDate today = LocalDate.now();
+        for (User user : employees) {
+            List<Attendance> records = attendanceRepository.findAllByUser_Id(user.getId());
+            Map<LocalDate, Attendance> attendanceMap = records.stream()
+                    .collect(Collectors.toMap(Attendance::getDate, a -> a));
+            if (user.getJoiningDate() == null) continue;
+            for (LocalDate date = user.getJoiningDate(); !date.isAfter(today); date = date.plusDays(1)) {
+                Attendance found = attendanceMap.get(date);
+                if (found != null) {
+                    handleMissedCheckoutForAdmin(found);
+                    finalList.add(found);
 
-        for(User user : users) {
-
-            if(user.getJoiningDate() == null){
-                continue;
-            }
-
-            LocalDate startDate = user.getJoiningDate();
-            LocalDate endDate = (user.getLeavingDate() != null) ? user.getLeavingDate().minusDays(1) : today;
-
-            if (endDate.isBefore(startDate)) {
-                continue;
-            }
-
-            List<Attendance> userAttendance =
-                    attendanceRepository.findAllByUser_IdAndDateBetween(
-                            user.getId(),
-                            startDate,
-                            endDate
-                    );
-
-            Map<LocalDate, Attendance> attendanceMap =
-                    userAttendance.stream()
-                            .collect(Collectors.toMap(
-                                    Attendance::getDate,
-                                    a -> a,
-                                    (a1, a2) -> a1
-                            ));
-
-            for(LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)){
-
-                if(attendanceMap.containsKey(date)){
-                    finalAttendanceList.add(attendanceMap.get(date));
                 } else {
                     Attendance absent = new Attendance();
                     absent.setUser(user);
                     absent.setDate(date);
-                    absent.setStatus("ABSENT");
+                    absent.setStatus("Absent");
 
-                    finalAttendanceList.add(absent);
+                    finalList.add(absent);
                 }
             }
         }
+        finalList.sort((a, b) -> b.getDate().compareTo(a.getDate()));
+        return finalList;
+    }
 
-        finalAttendanceList.sort(
-                Comparator.comparing(Attendance::getDate).reversed()
-        );
+    private void handleMissedCheckoutForAdmin(Attendance attendance) {
+        LocalDate today = LocalDate.now();
 
-        return finalAttendanceList;
+        if (attendance.getCheckInTime() != null &&
+                attendance.getCheckOutTime() == null &&
+                attendance.getDate() != null &&
+                !attendance.getDate().equals(today)) {
+
+            LocalTime autoCheckout = LocalTime.of(23, 59);
+            attendance.setCheckOutTime(autoCheckout);
+
+            Duration duration = Duration.between(
+                    attendance.getCheckInTime(),
+                    autoCheckout
+            );
+
+            long hours = duration.toHours();
+            long minutes = duration.toMinutes() % 60;
+
+            attendance.setStatus("Present");
+            attendance.setWorkingHours(hours + " hrs " + minutes + " min (Auto Closed)");
+
+            attendanceRepository.save(attendance);
+        }
     }
 
     public long totalEmployeesCount() {

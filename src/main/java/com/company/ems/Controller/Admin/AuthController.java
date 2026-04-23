@@ -108,6 +108,9 @@ public class AuthController {
     @ResponseBody
     public Map<String, String> getCurrentUser(Principal principal) {
 
+        if (principal == null) {
+            throw new RuntimeException("User not authenticated");
+        }
         String email = principal.getName();
 
         User user = userRepository.findByEmail(email)

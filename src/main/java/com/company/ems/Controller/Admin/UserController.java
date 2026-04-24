@@ -19,7 +19,7 @@ public class UserController {
 
     @GetMapping("/addUserPage")
     public String addUserPage() {
-        return "/Admin_dashboard/Manage_users/Add_user/add_user";
+        return "Admin_dashboard/Manage_users/Add_user/add_user";
     }
 
     @PostMapping("/add")
@@ -67,7 +67,7 @@ public class UserController {
 
         model.addAttribute("user", user);
 
-        return "/Admin_dashboard/Manage_users/Edit_user/edit_user";
+        return "Admin_dashboard/Manage_users/Edit_user/edit_user";
     }
 
     @PostMapping("/{userId}/edit")
@@ -143,7 +143,7 @@ public class UserController {
         model.addAttribute("currentPage", paginatedUsers.getNumber());
         model.addAttribute("totalPages", paginatedUsers.getTotalPages());
 
-        return "/Admin_dashboard/Manage_users/manage_users";
+        return "Admin_dashboard/Manage_users/manage_users";
     }
 
     @GetMapping("/filter")

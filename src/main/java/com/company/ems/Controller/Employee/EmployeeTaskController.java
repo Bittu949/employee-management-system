@@ -40,7 +40,7 @@ public class EmployeeTaskController {
         model.addAttribute("completedTasks", completed);
         model.addAttribute("pendingTasks", pending);
 
-        return "Employee_dashboard/My_tasks/my_tasks";
+        return "Employee_dashboard/My_Tasks/my_tasks";
     }
     @PostMapping("/task/update-status")
     @ResponseBody
@@ -76,7 +76,7 @@ public class EmployeeTaskController {
         model.addAttribute("task", task);
         model.addAttribute("pendingTasks", pendingTasks);
 
-        return "Employee_dashboard/My_tasks/View/view";
+        return "Employee_dashboard/My_Tasks/View/view";
     }
     @GetMapping("/tasks/filter")
     @ResponseBody

@@ -55,7 +55,7 @@ public class AdminDashboardController {
         model.addAttribute("absentCount", attendanceService.absentCount(attendanceList));
         model.addAttribute("attendancePercentageToday", attendanceService.showAttendancePercentage(attendanceList));
 
-        return "/Admin_dashboard/admin_dashboard";
+        return "Admin_dashboard/admin_dashboard";
     }
 
     @GetMapping("/logout")
